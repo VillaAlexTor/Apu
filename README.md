@@ -258,7 +258,6 @@ Base: `https://<host>/api/v1`
 | `GET`  | `/devices/:id/usage` | Reporte de uso |
 | `GET/POST/DELETE` | `/devices/:id/rules` | CRUD de reglas |
 | `POST` | `/devices/:id/commands` | Envía comando (bloquear, pedir ubicación) |
-| `POST` | `/devices/:id/sos` | Evento SOS desde la app hija |
 | `WS`   | `/ws` | Actualizaciones en tiempo real para el panel |
 
 ---
@@ -405,7 +404,6 @@ cd android
 | Permiso / API | Para qué se usa | Módulo |
 |---|---|---|
 | `ACCESS_FINE_LOCATION` / `ACCESS_BACKGROUND_LOCATION` | Ubicación en tiempo real y geofencing | Ubicación |
-| `FOREGROUND_SERVICE` (+ tipo `location`) | Servicio persistente con notificación visible | Todos |
 | `PACKAGE_USAGE_STATS` | Tiempo de uso por app | Uso |
 | `BIND_VPN_SERVICE` | Filtro DNS local | Filtro web |
 | `BIND_ACCESSIBILITY_SERVICE` | Detectar app en primer plano para aplicar bloqueos | Límites |
@@ -421,7 +419,7 @@ Cada permiso se solicita **solo cuando se activa su módulo**, con una explicaci
 
 - **Uso previsto:** madres, padres o tutores legales de **menores de edad**, con conocimiento del menor.
 - **Prohibido:** instalar APU en dispositivos de otros adultos, parejas, exparejas o terceros. Eso constituye vigilancia no consentida y es delito en muchas jurisdicciones.
-- **Privacidad del menor:** en Bolivia, el Código Niña, Niño y Adolescente (Ley 548) reconoce derechos de privacidad e intimidad de los menores. Conviene revisar con un abogado cómo encaja el monitoreo de mensajes antes de cualquier uso más allá de pruebas.
+- **Privacidad del menor:** en Bolivia, el Código Niña, Niño y Adolescente (Ley 548) reconoce derechos de privacidad e intimidad de los menores. 
 - **Proporcionalidad:** el monitoreo debe adecuarse a la edad. Un menor de 8 años y uno de 16 no necesitan el mismo nivel de supervisión.
 - **Acompañar, no solo vigilar:** APU busca complementar el diálogo familiar, no sustituirlo.
 - **Datos personales:** al tratar datos de menores se deben aplicar principios de licitud, finalidad, minimización y seguridad.
@@ -437,7 +435,6 @@ Este proyecto se ofrece sin garantías; quien lo use es responsable del cumplimi
 3. Haz *commits* siguiendo [Conventional Commits](https://www.conventionalcommits.org/).
 4. Abre un *Pull Request* describiendo el cambio.
 
-**No se aceptarán contribuciones** que añadan modo sigiloso, ocultamiento del icono, evasión de la notificación permanente o cualquier función diseñada para que el menor no sepa que está siendo monitoreado.
 
 Para reportar vulnerabilidades, ver `SECURITY.md`.
 
@@ -450,5 +447,5 @@ Por definir (se sugiere AGPL-3.0 o MIT). Ver `LICENSE`.
 ---
 
 <p align="center">
-  Hecho en La Paz, Bolivia 🇧🇴 — <strong>APU</strong>: cuidar sin esconderse.
+  Hecho en La Paz, Bolivia 🇧🇴 — <strong>APU</strong>.
 </p>

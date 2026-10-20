@@ -47,8 +47,7 @@
 - [ ] Emparejamiento por código/QR entre panel y celular
 - [ ] Ubicación en tiempo real (foreground service)
 - [ ] Historial de ubicaciones con retención configurable
-- [ ] Zonas seguras (geofencing): casa, colegio, universidad
-- [ ] Botón **SOS** del menor → notificación push al tutor con última ubicación
+- [ ] Zonas seguras (geofencing): casa, colegio, universidad (Configuradas por el tutor)
 
 ### Fase 2 — Tiempo de uso
 - [ ] Estadísticas de uso por aplicación (`UsageStatsManager`)
@@ -66,7 +65,6 @@
 ### Fase 4 — Mensajes y chats *(opt-in, transparente)*
 - [ ] Lectura de **contenido de notificaciones** de apps de mensajería
 - [ ] Alertas por palabras o patrones de riesgo configurables
-- [ ] Indicador visible en el celular del menor cuando este módulo está activo
 - [ ] Ver [Monitoreo de mensajes](#-monitoreo-de-mensajes-fase-4)
 
 ### Fase 5 — Madurez

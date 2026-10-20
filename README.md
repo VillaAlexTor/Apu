@@ -286,13 +286,9 @@ Esta es la función más sensible del proyecto y se trata con reglas propias.
 - Limitaciones: no se ven mensajes que el menor lee con la app abierta sin notificación, ni los borrados antes de llegar a la bandeja.
 
 **Reglas de diseño obligatorias:**
-1. **Opt-in explícito**: el módulo `messages` está desactivado por defecto y se activa por separado, con su propia pantalla de consentimiento.
-2. **Indicador visible**: mientras está activo, la notificación permanente de APU lo indica ("Monitoreo de mensajes activo").
-3. **Sin modo sigiloso**: no se permite ocultar el icono, disfrazar la app ni desactivar la notificación.
-4. **Alertas antes que lectura completa** (modo recomendado): el tutor configura categorías de riesgo (acoso, grooming, autolesión, drogas, extorsión) y recibe **alertas con contexto mínimo**, no un espejo de toda la conversación.
-5. **Cifrado extremo a tutor**: el contenido se cifra en el dispositivo con la clave pública del tutor; el servidor solo almacena texto cifrado.
-6. **Retención corta**: por defecto 7 días, configurable, con borrado automático.
-7. **Registro de auditoría**: cada acceso del tutor a mensajes queda registrado.
+1. **Cifrado extremo a tutor**: el contenido se cifra en el dispositivo con la clave pública del tutor; el servidor solo almacena texto cifrado.
+2. **Retención corta**: por defecto 7 días, configurable, con borrado automático.
+3. **Registro de auditoría**: cada acceso del tutor a mensajes queda registrado.
 
 ---
 

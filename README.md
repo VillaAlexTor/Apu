@@ -33,9 +33,9 @@
 |---|---|
 | **Transparencia** | Icono que se puede cambiar, no hay sospechas de que el sistema esta funcionando. **Existe modo oculto y posble camuflaje.** |
 | **Conocimiento del menor** | El primer arranque muestra una pantalla clara con lo que se monitorea. El menor puede ver en su propia app qué datos se comparten. |
-| **Minimización de datos** | Se recolecta solo lo necesario para cada función activada. Nada se recolecta "por si acaso". |
-| **Control del tutor, con límites** | El tutor decide qué módulos activar; el menor ve cuáles están activos. |
-| **Seguridad primero** | Cifrado en tránsito y en reposo, tokens ligados al dispositivo, retención limitada. Son datos de una menor. |
+| **Minimización de datos** | Se recolecta lo necesario para cada función activada. Posibles cambios a futuro |
+| **Control del tutor, con límites** | El tutor decide qué módulos activar. |
+| **Seguridad primero** | Cifrado en tránsito y en reposo, tokens ligados al dispositivo, retención limitada. |
 | **Uso exclusivo familiar** | APU es para tutores legales y sus hijos. No está diseñada ni se debe usar para vigilar a otros adultos. |
 
 ---

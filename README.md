@@ -31,7 +31,7 @@
 
 | Principio | Qué significa en la práctica |
 |---|---|
-| **Transparencia** | Icono visible, notificación permanente mientras el monitoreo está activo. **No existe modo oculto ni camuflaje.** |
+| **Transparencia** | Icono que se puede cambiar, no hay sospechas de que el sistema esta funcionando. **Existe modo oculto y posble camuflaje.** |
 | **Conocimiento del menor** | El primer arranque muestra una pantalla clara con lo que se monitorea. El menor puede ver en su propia app qué datos se comparten. |
 | **Minimización de datos** | Se recolecta solo lo necesario para cada función activada. Nada se recolecta "por si acaso". |
 | **Control del tutor, con límites** | El tutor decide qué módulos activar; el menor ve cuáles están activos. |

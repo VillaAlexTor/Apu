@@ -2,7 +2,7 @@
 
 > *Apu*: en la cosmovisión andina, el espíritu protector de las montañas que cuida a la comunidad.
 
-**APU** es una aplicación de control parental para Android. Se instala en el celular de la hija o del hijo y permite a madres, padres o tutores ver, desde un panel web, información de uso, ubicación y (en fases posteriores) actividad de mensajería, con límites configurables.
+**APU** es una aplicación de control parental para Android. Se instala en el celular de la hija o del hijo y permite a madres, padres o tutores ver, desde un panel web, información de uso, ubicación, actividad de mensajería y ciertos accesos para un mejor control parental.
 
 ---
 
@@ -31,8 +31,8 @@
 
 | Principio | Qué significa en la práctica |
 |---|---|
-| **Transparencia** | Icono que se puede cambiar, no hay sospechas de que el sistema esta funcionando. **Existe modo oculto y posble camuflaje.** |
-| **Conocimiento del menor** | El primer arranque muestra una pantalla clara con lo que se monitorea. El menor puede ver en su propia app qué datos se comparten. |
+| **Transparencia** | Icono que se puede cambiar, no hay sospechas de que el sistema esta funcionando. **Existe modo oculto y posible modo camuflaje.** |
+| **Conocimiento del menor** | El primer arranque muestra una pantalla clara con lo que se monitorea. El menor puede ver en su propia app qué datos se van a compartir. |
 | **Minimización de datos** | Se recolecta lo necesario para cada función activada. Posibles cambios a futuro |
 | **Control del tutor, con límites** | El tutor decide qué módulos activar. |
 | **Seguridad primero** | Cifrado en tránsito y en reposo, tokens ligados al dispositivo, retención limitada. |

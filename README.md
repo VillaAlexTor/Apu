@@ -4,8 +4,6 @@
 
 **APU** es una aplicación de control parental para Android. Se instala en el celular de la hija o del hijo y permite a madres, padres o tutores ver, desde un panel web, información de uso, ubicación y (en fases posteriores) actividad de mensajería, con límites configurables.
 
-APU está diseñada bajo un principio central: **la protección no requiere ocultarse**. El menor sabe que la app está instalada y qué se monitorea.
-
 ---
 
 ## 📑 Tabla de contenidos

@@ -46,6 +46,12 @@ Los envíos de datos y operaciones que crean comandos aceptan
 |---|---|---|---|
 | POST | `/auth/register` | pública | crea tutor |
 | POST | `/auth/login` | pública | sesión |
+| GET | `/me` | usuario | perfil y tenants |
+| GET | `/subscription` | tenant owner/admin | estado y límites |
+| POST | `/billing/checkout` | tenant owner | inicia suscripción |
+| POST | `/billing/webhook` | proveedor verificado | actualiza pago |
+| GET | `/admin/tenants` | operador | lista operativa sin datos sensibles |
+| POST | `/admin/tenants` | operador | crea tenant y propietario |
 | POST | `/pairing/code` | tutor | código temporal |
 | POST | `/pairing/confirm` | dispositivo | dispositivo vinculado |
 | GET | `/devices` | tutor | dispositivos de su familia |
@@ -67,4 +73,3 @@ Antes de escribir un endpoint:
 4. definir auditoría y retención;
 5. agregar casos positivos y negativos a tests;
 6. generar o revisar clientes tipados sin copiar modelos de base de datos.
-

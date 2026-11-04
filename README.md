@@ -125,9 +125,12 @@ apu/
 ├── docker-compose.yml
 ├── docs/
 │   ├── arquitectura.md
+│   ├── decisiones-adr.md       # Decisiones de arquitectura
 │   ├── modelo-amenazas.md        # Threat model (STRIDE)
 │   ├── privacidad.md             # Política de datos
-│   └── api/                      # OpenAPI / Swagger
+│   ├── estrategia-pruebas.md     # Estrategia y criterios de pruebas
+│   ├── plan-implementacion.md    # Orden de construcción
+│   └── api/                      # Contrato OpenAPI
 ├── backend/                      # Go
 │   ├── cmd/apu-server/
 │   ├── internal/
@@ -310,11 +313,11 @@ Esta es la función más sensible del proyecto y se trata con reglas propias.
 - Secretos fuera del repositorio (variables de entorno / gestor de secretos).
 
 **Proceso**
-- [ ] Modelo de amenazas (STRIDE) en `docs/modelo-amenazas.md`
+- [x] Modelo de amenazas (STRIDE) en `docs/modelo-amenazas.md`
 - [ ] Análisis estático (`gosec`, `staticcheck`, Detekt) en CI
 - [ ] Escaneo de dependencias (`govulncheck`, `npm audit`, Dependabot)
 - [ ] Pentest antes de cualquier uso fuera de pruebas internas
-- [ ] Política de divulgación responsable (`SECURITY.md`)
+- [x] Política de divulgación responsable (`SECURITY.md`)
 
 ---
 

@@ -2,7 +2,9 @@
 
 > *Apu*: en la cosmovisión andina, el espíritu protector de las montañas que cuida a la comunidad.
 
-**APU** es una aplicación de control parental para Android. Se instala en el celular de la hija o del hijo y permite a madres, padres o tutores ver, desde un panel web, información de uso, ubicación, actividad de mensajería y ciertos accesos para un mejor control parental.
+**APU** es un servicio SaaS privado de control parental para Android. El
+operador crea cuentas de clientes que, mediante una suscripción mensual, pueden
+administrar usuarios, familias y dispositivos desde un panel web.
 
 ---
 
@@ -25,9 +27,9 @@
 15. [Contribuir](#-contribuir)
 16. [Licencia](#-licencia)
 
-La documentación técnica previa al desarrollo se encuentra en [`docs/`](docs/):
-requisitos, dominio, flujos, autorización, convenciones, base de datos,
-eventos, observabilidad, despliegue y releases.
+La documentación técnica y comercial previa al desarrollo se encuentra en
+[`docs/`](docs/): requisitos, arquitectura SaaS, roles, suscripciones, dominio,
+aislamiento, privacidad, soporte, operación y releases.
 
 ---
 
@@ -40,7 +42,7 @@ eventos, observabilidad, despliegue y releases.
 | **Minimización de datos** | Se recolecta lo necesario para cada función activada. Posibles cambios a futuro |
 | **Control del tutor, con límites** | El tutor decide qué módulos activar. |
 | **Seguridad primero** | Cifrado en tránsito y en reposo, tokens ligados al dispositivo, retención limitada. |
-| **Uso exclusivo familiar** | APU es para tutores legales y sus hijos. No está diseñada ni se debe usar para vigilar a otros adultos. |
+| **Uso autorizado** | APU es para clientes que tienen autoridad legal sobre los dispositivos. No está diseñada ni se debe usar para vigilar a otros adultos. |
 
 ---
 
@@ -129,14 +131,24 @@ apu/
 ├── docker-compose.yml
 ├── docs/
 │   ├── arquitectura.md
+│   ├── arquitectura-saas.md   # Modelo multiusuario y multi-tenant
 │   ├── decisiones-adr.md       # Decisiones de arquitectura
 │   ├── requisitos.md            # Alcance y criterios del MVP
+│   ├── usuarios-roles.md        # Roles del operador y clientes
+│   ├── suscripciones-facturacion.md
+│   ├── planes-comerciales.md
+│   ├── panel-administracion.md
+│   ├── tenant-isolation.md
 │   ├── glosario-dominio.md      # Vocabulario común
 │   ├── modelo-dominio.md        # Entidades y reglas
 │   ├── flujos.md                # Flujos funcionales
 │   ├── matriz-autorizacion.md   # Permisos por actor
 │   ├── modelo-amenazas.md        # Threat model (STRIDE)
 │   ├── privacidad.md             # Política de datos
+│   ├── politica-privacidad.md    # Política SaaS (borrador legal)
+│   ├── terminos-servicio.md      # Términos (borrador legal)
+│   ├── sla-soporte.md
+│   ├── backup-recuperacion.md
 │   ├── guia-desarrollo.md       # Desarrollo local
 │   ├── convenciones-codigo.md   # Estándares de implementación
 │   ├── base-datos.md            # PostgreSQL y migraciones
@@ -449,7 +461,7 @@ Este proyecto se ofrece sin garantías; quien lo use es responsable del cumplimi
 
 ## 🤝 Contribuir
 
-1. Haz un *fork* del repositorio.
+1. Solicita acceso privado al repositorio.
 2. Crea una rama: `git checkout -b feat/mi-mejora`.
 3. Haz *commits* siguiendo [Conventional Commits](https://www.conventionalcommits.org/).
 4. Abre un *Pull Request* describiendo el cambio.
@@ -469,7 +481,8 @@ No debe utilizarse con datos reales de menores.
 
 ## 📄 Licencia
 
-APU se distribuye bajo la licencia [MIT](LICENSE).
+APU se distribuye bajo una licencia propietaria; el repositorio no concede
+derechos de copia, modificación o redistribución. Ver [LICENSE](LICENSE).
 
 ---
 

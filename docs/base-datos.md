@@ -2,8 +2,9 @@
 
 ## Tecnología y responsabilidades
 
-PostgreSQL es la fuente de verdad para identidad, familias, dispositivos,
-configuración, ubicaciones, auditoría y estados de comandos. La aplicación es
+PostgreSQL es la fuente de verdad para tenants, identidad, suscripciones,
+familias, dispositivos, configuración, ubicaciones, auditoría y estados de
+comandos. La aplicación es
 responsable de migraciones; el ORM no debe crear cambios implícitos en
 producción.
 
@@ -29,9 +30,10 @@ producción.
 ## Índices iniciales
 
 - `guardians(email)` único normalizado.
-- `devices(family_id, status)`.
+- `tenant_users(tenant_id, user_id)`.
+- `devices(tenant_id, family_id, status)`.
 - `locations(device_id, recorded_at DESC)`.
-- `audit_log(family_id, at DESC)`.
+- `audit_log(tenant_id, family_id, at DESC)`.
 - `commands(device_id, status, expires_at)`.
 
 Los índices se validan con `EXPLAIN` sobre volúmenes representativos.
@@ -53,4 +55,3 @@ auditoría operacional. Debe ser idempotente, reanudable y observable.
 - Retención de backups documentada separadamente de retención de producto.
 - Pruebas periódicas de restauración.
 - No restaurar producción sobre entornos de desarrollo sin anonimización.
-

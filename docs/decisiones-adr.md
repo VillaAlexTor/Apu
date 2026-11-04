@@ -79,3 +79,22 @@ documentación afectada antes de implementarse.
 - **Consecuencia:** no se deben crear permisos, tablas ni endpoints de mensajes
   como parte del primer incremento.
 
+## ADR-009: SaaS privado multi-tenant
+
+- **Estado:** aceptada.
+- **Decisión:** APU se opera como servicio privado con tenants, usuarios,
+  suscripciones mensuales y planes con límites.
+- **Motivo:** el producto será administrado por el operador y no distribuido
+  como software libre.
+- **Consecuencia:** toda autorización incluye `tenant_id`, la facturación se
+  integra mediante webhooks verificados y el repositorio usa licencia propietaria.
+
+## ADR-010: El proveedor de pagos no es la autoridad de autorización
+
+- **Estado:** aceptada.
+- **Decisión:** el proveedor de pagos informa eventos; APU mantiene el estado
+  verificado de la suscripción y decide el acceso.
+- **Motivo:** las rutas del producto necesitan decisiones consistentes,
+  auditables e idempotentes, sin depender de una llamada síncrona al proveedor.
+- **Consecuencia:** se requieren reconciliación periódica, deduplicación y
+  manejo explícito de `past_due`, `suspended` y `terminated`.

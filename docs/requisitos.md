@@ -1,14 +1,15 @@
 # Requisitos del proyecto
 
-**Estado:** baseline del MVP  
+**Estado:** baseline del MVP SaaS
 **Versión:** 0.1  
 **Última actualización:** 2026-11-04
 
 ## 1. Objetivo del MVP
 
-Permitir que un tutor legal vincule un dispositivo Android familiar, active el
-módulo de ubicación con conocimiento del menor y consulte su ubicación reciente
-desde un panel web seguro.
+Permitir que un cliente con una suscripción activa administre usuarios, familias
+y dispositivos Android autorizados, active el módulo de ubicación con
+conocimiento del menor y consulte su ubicación reciente desde un panel web
+seguro.
 
 El MVP no debe usarse con datos reales hasta completar la revisión legal y de
 seguridad indicada en [modelo-amenazas.md](./modelo-amenazas.md).
@@ -27,6 +28,10 @@ seguridad indicada en [modelo-amenazas.md](./modelo-amenazas.md).
 - Visualización de ubicación en mapa.
 - Geocercas básicas y eventos de entrada/salida.
 - Auditoría de accesos, cambios y comandos.
+- Alta y administración de tenants por el operador.
+- Roles y permisos dentro de cada tenant.
+- Suscripción mensual con estados y límites por plan.
+- Panel operativo separado para soporte y facturación.
 
 ## 3. Fuera del MVP
 
@@ -37,7 +42,7 @@ seguridad indicada en [modelo-amenazas.md](./modelo-amenazas.md).
 - Estadísticas de uso de aplicaciones.
 - Múltiples roles avanzados de tutor.
 - Publicación en Google Play.
-- Uso comercial o multi-tenant público.
+- Funciones comerciales avanzadas fuera del plan definido.
 
 ## 4. Requisitos funcionales
 
@@ -57,6 +62,10 @@ seguridad indicada en [modelo-amenazas.md](./modelo-amenazas.md).
 | RF-12 | El panel recibe eventos de ubicación por WebSocket. | Should |
 | RF-13 | El tutor puede revocar un dispositivo. | Must |
 | RF-14 | Toda lectura sensible queda auditada. | Must |
+| RF-15 | El acceso se aísla por `tenant_id` antes de `family_id`. | Must |
+| RF-16 | El backend aplica límites del plan vigente. | Must |
+| RF-17 | El operador puede suspender un tenant sin borrar datos inmediatamente. | Must |
+| RF-18 | Los webhooks de pago se validan y procesan idempotentemente. | Must |
 
 ## 5. Requisitos no funcionales
 
@@ -77,4 +86,3 @@ El MVP está listo cuando un tutor puede completar el flujo de emparejamiento,
 activar ubicación, perder y recuperar conectividad sin perder ni duplicar
 eventos, consultar el historial y revocar el dispositivo. Además, los tests
 demuestran que un tutor de otra familia no puede acceder a esos datos.
-

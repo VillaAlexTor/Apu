@@ -25,6 +25,10 @@
 15. [Contribuir](#-contribuir)
 16. [Licencia](#-licencia)
 
+La documentación técnica previa al desarrollo se encuentra en [`docs/`](docs/):
+requisitos, dominio, flujos, autorización, convenciones, base de datos,
+eventos, observabilidad, despliegue y releases.
+
 ---
 
 ## 🧭 Principios del proyecto
@@ -126,8 +130,20 @@ apu/
 ├── docs/
 │   ├── arquitectura.md
 │   ├── decisiones-adr.md       # Decisiones de arquitectura
+│   ├── requisitos.md            # Alcance y criterios del MVP
+│   ├── glosario-dominio.md      # Vocabulario común
+│   ├── modelo-dominio.md        # Entidades y reglas
+│   ├── flujos.md                # Flujos funcionales
+│   ├── matriz-autorizacion.md   # Permisos por actor
 │   ├── modelo-amenazas.md        # Threat model (STRIDE)
 │   ├── privacidad.md             # Política de datos
+│   ├── guia-desarrollo.md       # Desarrollo local
+│   ├── convenciones-codigo.md   # Estándares de implementación
+│   ├── base-datos.md            # PostgreSQL y migraciones
+│   ├── eventos.md               # Eventos y WebSocket
+│   ├── observabilidad.md        # Logs, métricas y alertas
+│   ├── despliegue.md            # Entornos y operación
+│   ├── release.md               # Publicación y rollback
 │   ├── estrategia-pruebas.md     # Estrategia y criterios de pruebas
 │   ├── plan-implementacion.md    # Orden de construcción
 │   └── api/                      # Contrato OpenAPI
@@ -453,7 +469,7 @@ No debe utilizarse con datos reales de menores.
 
 ## 📄 Licencia
 
-Por definir (se sugiere AGPL-3.0 o MIT). Ver `LICENSE`.
+APU se distribuye bajo la licencia [MIT](LICENSE).
 
 ---
 

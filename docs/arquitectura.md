@@ -7,10 +7,12 @@
 ## 1. Objetivo
 
 Definir la arquitectura técnica, los límites entre componentes y las reglas de
-implementación de APU antes de escribir código. Esta propuesta prioriza:
+implementación de APU antes de escribir código. APU será un SaaS privado
+multiusuario operado por el propietario del producto. Esta propuesta prioriza:
 
 - transparencia para el menor y el tutor;
-- aislamiento estricto entre familias;
+- aislamiento estricto entre tenants, familias y dispositivos;
+- control de acceso comercial según suscripción;
 - minimización, cifrado y retención limitada de datos;
 - funcionamiento tolerante a conectividad intermitente;
 - posibilidad de desactivar módulos sin reinstalar la aplicación.
@@ -23,11 +25,13 @@ del primer incremento ejecutable.
 
 ### Actores
 
-- **Tutor:** administra una familia y consulta los dispositivos vinculados.
+- **Operador:** administra tenants, suscripciones y soporte operacional.
+- **Cliente:** paga y administra un tenant.
+- **Tutor:** administra familias y consulta dispositivos autorizados dentro de un
+  tenant.
 - **Menor:** utiliza el dispositivo Android y debe conocer los módulos activos.
 - **Dispositivo:** aplicación Android que recolecta únicamente los datos habilitados.
-- **Administrador técnico:** opera la infraestructura, pero no debe poder leer
-  datos cifrados de extremo a extremo.
+- **Soporte:** atiende incidencias sin acceso rutinario a datos sensibles.
 
 ### Componentes
 
@@ -63,8 +67,8 @@ Panel (Next.js/React)
 
 1. **Modularidad:** cada capacidad se activa por dispositivo y tiene permisos,
    recolector, endpoint, política de retención y auditoría propios.
-2. **Autorización por familia:** ningún handler acepta un `device_id` sin
-   comprobar que pertenece a la familia del usuario autenticado.
+2. **Autorización jerárquica:** ningún handler acepta un identificador de
+   tenant, familia o dispositivo sin comprobar la cadena completa del actor.
 3. **Servidor como fuente de verdad:** el cliente puede reintentar y cachear,
    pero no decide permisos, pertenencia ni reglas de seguridad.
 4. **Idempotencia:** envíos de lotes y comandos incluyen un identificador único
@@ -223,4 +227,3 @@ Antes de comenzar funcionalidades posteriores al MVP:
 - el consentimiento y los módulos activos son visibles en Android;
 - los datos vencidos se eliminan mediante un proceso verificable;
 - los tests cubren errores, permisos y conectividad intermitente.
-

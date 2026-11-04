@@ -13,17 +13,23 @@ por pantallas sin contratos definidos.
 
 **Salida:** repositorio compilable aunque no tenga funcionalidades de negocio.
 
-## Fase 1 — Identidad y familia
+## Fase 1 — Identidad, tenants y roles
 
 - registro, login, refresh y revocación;
-- modelo de familias y relación tutor-familia;
+- modelo de tenants, usuarios, roles y relación tutor-familia;
 - middleware de autenticación;
 - auditoría base;
 - pruebas de aislamiento.
 
-**Salida:** un tutor autenticado solo puede operar en su familia.
+**Salida:** un usuario autenticado solo puede operar dentro del tenant y las
+familias autorizadas.
 
-## Fase 2 — Emparejamiento
+## Fase 2 — Suscripciones y emparejamiento
+
+- planes y límites;
+- estados de suscripción;
+- webhooks de pago idempotentes;
+- panel de administración básico;
 
 - código hashado con TTL y rate limit;
 - flujo Android visible y consentimiento;
@@ -31,7 +37,8 @@ por pantallas sin contratos definidos.
 - registro y revocación del dispositivo;
 - contrato y tests de replay.
 
-**Salida:** dispositivo vinculado de manera revocable y auditable.
+**Salida:** tenant con acceso comercial verificable y dispositivo vinculado de
+manera revocable y auditable.
 
 ## Fase 3 — Ubicación y mapa
 
@@ -77,4 +84,3 @@ Una tarea está terminada cuando:
 - no introduce secretos ni datos reales;
 - tiene logs seguros y errores explícitos;
 - se verificó en el flujo afectado.
-

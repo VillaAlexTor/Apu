@@ -3,13 +3,28 @@
 ## Entidades principales
 
 ```text
-Guardian ──< FamilyGuardian >── Family ──< Device
+Tenant ──< TenantUser >── User
+  ├── Subscription
+  └── Family ──< FamilyGuardian >── Guardian ──< Device
                                       ├──< DeviceModule
                                       ├──< Location
                                       ├──< Geofence
                                       ├──< Command
                                       └──< AuditEntry
 ```
+
+### Tenant
+
+Cliente aislado del resto del servicio. Contiene usuarios, suscripción, familias
+y configuración comercial.
+
+### Subscription
+
+Estado y límites del plan contratado por el tenant.
+
+### User
+
+Identidad de acceso del panel con uno o más roles dentro del tenant.
 
 ### Guardian
 
@@ -53,14 +68,15 @@ No contiene secretos ni payloads sensibles.
 
 ## Reglas de negocio
 
-1. Un dispositivo pertenece a una sola familia activa.
+1. Un dispositivo pertenece a una sola familia y tenant activos.
 2. Un código de emparejamiento es de un solo uso y expira.
 3. Un dispositivo revocado no puede enviar datos ni recibir comandos.
 4. Una muestra repetida por `event_id` es un éxito idempotente.
 5. Un módulo desactivado no puede producir nuevas muestras.
 6. La retención nunca puede superar el máximo definido por política.
-7. El acceso a un recurso requiere pertenencia a la familia del actor.
+7. El acceso a un recurso requiere pertenencia al tenant y familia del actor.
 8. Un comando vencido no se entrega ni se ejecuta.
+9. Una capacidad excedente del plan no puede crearse desde la API.
 
 ## Estados y transiciones
 
@@ -74,4 +90,3 @@ Command: pending → delivered → acknowledged
 
 Las transiciones inválidas deben devolver un error de dominio explícito y no
 modificar la base de datos.
-

@@ -7,7 +7,8 @@
 - **Staging:** configuración similar a producción y datos sintéticos.
 - **Producción:** acceso restringido, secretos gestionados y backups activos.
 
-Cada entorno tiene base de datos, claves y credenciales independientes.
+Cada entorno tiene base de datos, claves, credenciales y proveedores de pago
+independientes. El repositorio y los artefactos de producción son privados.
 
 ## Pipeline
 
@@ -44,4 +45,3 @@ cambio de lectura/escritura y contracción en releases separados.
 Un rollback debe poder revertir la aplicación sin destruir datos. Si una
 migración no es reversible, el plan debe incluir compatibilidad hacia atrás y
 restauración verificada.
-

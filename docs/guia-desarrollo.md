@@ -11,7 +11,7 @@
 ## Preparación
 
 ```bash
-git clone https://github.com/VillaAlexTor/Apu.git
+git clone <URL-PRIVADA-DEL-REPOSITORIO>
 cd Apu
 docker compose up -d postgres
 ```
@@ -49,12 +49,12 @@ cd android
 
 ## Ramas y commits
 
-- `main`: rama protegida y publicable.
+- `main`: rama protegida y desplegable.
 - `feat/<nombre>`: funcionalidad.
 - `fix/<nombre>`: corrección.
 - `docs/<nombre>`: documentación.
 - Commits con Conventional Commits.
-- Pull request con pruebas, impacto de datos y riesgos.
+- Pull request privado con pruebas, impacto de datos y riesgos.
 
 ## Datos de desarrollo
 
@@ -70,4 +70,3 @@ capturas ni bases de datos reales al entorno local.
 - autorización y auditoría cubiertas;
 - logs sin datos sensibles;
 - documentación y variables de entorno actualizadas.
-

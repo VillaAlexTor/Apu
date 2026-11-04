@@ -1,8 +1,9 @@
 # Privacidad y ciclo de vida de datos
 
-Este documento describe controles técnicos previstos. No sustituye una política
-legal ni asesoría jurídica. APU no debe usarse con datos reales de menores hasta
-completar la revisión legal y de seguridad.
+Este documento describe controles técnicos previstos para el SaaS. No sustituye
+la [política de privacidad](./politica-privacidad.md), una política legal ni
+asesoría jurídica. APU no debe usarse con datos reales de menores hasta completar
+la revisión legal y de seguridad.
 
 ## 1. Clasificación
 
@@ -14,6 +15,10 @@ completar la revisión legal y de seguridad.
 | Estado de batería/conectividad | media | diagnóstico y panel | 7 días |
 | Auditoría | alta | seguridad y responsabilidad | 90 días, sujeto a revisión |
 | Tokens y secretos | crítica | autenticación/integraciones | nunca en logs; rotación |
+
+Los datos se clasifican y retienen dentro del tenant correspondiente. Los datos
+de facturación se mantienen separados de la ubicación y sujetos a obligaciones
+legales distintas.
 
 Los mensajes no forman parte del MVP y no deben añadirse a este esquema sin una
 decisión específica.
@@ -32,7 +37,7 @@ decisión específica.
 
 ## 3. Acceso y aislamiento
 
-- El tutor solo accede a dispositivos de su familia.
+- El usuario solo accede a dispositivos de su familia dentro de su tenant.
 - El backend no confía en IDs enviados por el cliente.
 - Toda lectura de ubicación queda auditada con actor, dispositivo, rango de
   tiempo y resultado.
@@ -69,4 +74,3 @@ operador del servicio.
 - Separar claves por entorno y rotarlas.
 - No usar datos de producción en desarrollo o tests.
 - Usar datos sintéticos en fixtures y capturas.
-

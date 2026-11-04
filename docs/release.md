@@ -2,7 +2,7 @@
 
 ## Versionado
 
-- Backend y dashboard: SemVer.
+- Backend y dashboard: SemVer interno.
 - Android: `versionName` SemVer y `versionCode` incremental.
 - Cambios incompatibles de API requieren nueva versión o periodo de compatibilidad.
 
@@ -18,7 +18,7 @@
 
 ## Release del backend y dashboard
 
-1. Crear tag desde `main`.
+1. Crear tag privado desde `main`.
 2. Construir artefactos reproducibles.
 3. Aplicar migraciones compatibles.
 4. Desplegar staging y ejecutar smoke tests.
@@ -29,10 +29,11 @@
 ## Release Android
 
 1. Revisar permisos y comportamiento visible.
-2. Construir APK firmado fuera del repositorio.
+2. Construir APK firmado fuera del repositorio y distribuirlo solo a clientes
+   autorizados.
 3. Verificar hash y firma.
 4. Probar instalación, actualización, revocación y pérdida de red.
-5. Distribuir solo a dispositivos autorizados durante la fase experimental.
+5. Publicar únicamente por el canal privado de distribución contratado.
 
 ## Notas de release
 
@@ -45,4 +46,3 @@ información de menores.
 Si una release causa riesgo de seguridad o privacidad, detener distribución,
 revocar credenciales afectadas, preservar evidencia mínima y seguir el proceso
 de reporte responsable de [SECURITY.md](../SECURITY.md).
-

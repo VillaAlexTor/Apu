@@ -1,0 +1,7 @@
+# Impeccable design-session artifacts
+.impeccable/questions/
+.impeccable/login-directions*.json
+.impeccable/mocks/decision/*
+!.impeccable/mocks/decision/login-atlas.webp
+!.impeccable/mocks/decision/login-atlas.prompt.md
+

@@ -28,8 +28,9 @@ administrar usuarios, familias y dispositivos desde un panel web.
 16. [Licencia](#-licencia)
 
 La documentación técnica y comercial previa al desarrollo se encuentra en
-[`docs/`](docs/): requisitos, arquitectura SaaS, roles, suscripciones, dominio,
-aislamiento, privacidad, soporte, operación y releases.
+[`docs/`](docs/). El índice y la fuente de verdad de cada tema están en
+[`docs/README.md`](docs/README.md). Las carpetas de aplicaciones mostradas más
+abajo son estructura prevista mientras el repositorio continúa en planificación.
 
 ---
 

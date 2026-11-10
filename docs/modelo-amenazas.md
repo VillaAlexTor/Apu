@@ -48,6 +48,7 @@
 
 ## Fuera de alcance inicial
 
-No se aprueba todavía monitoreo de mensajes, bloqueo remoto, accesibilidad ni
-VPN. Cada uno requiere un análisis STRIDE ampliado y decisión explícita.
-
+No se aprueba todavía monitoreo de mensajes, bloqueo remoto ni VPN. Cada uno
+requiere un análisis STRIDE ampliado y decisión explícita. La accesibilidad sí
+es un requisito transversal de las interfaces, aunque sus criterios detallados
+se incorporarán progresivamente en cada módulo.

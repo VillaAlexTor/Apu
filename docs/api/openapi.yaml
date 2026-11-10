@@ -1,0 +1,114 @@
+openapi: 3.0.3
+info:
+  title: APU API
+  version: 0.1.0
+  description: Contrato inicial de la API pública de APU.
+servers:
+  - url: https://api.example.invalid/api/v1
+paths:
+  /auth/register:
+    post:
+      operationId: register
+      summary: Crear una cuenta
+      security: []
+      responses:
+        '201':
+          description: Cuenta creada
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+  /auth/login:
+    post:
+      operationId: login
+      summary: Iniciar sesión
+      security: []
+      responses:
+        '200':
+          description: Sesión creada
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /me:
+    get:
+      operationId: getMe
+      summary: Obtener identidad y tenants
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Identidad autorizada
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /pairing/code:
+    post:
+      operationId: createPairingCode
+      summary: Crear código temporal
+      security:
+        - bearerAuth: []
+      responses:
+        '201':
+          description: Código creado
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /devices:
+    get:
+      operationId: listDevices
+      summary: Listar dispositivos autorizados
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Dispositivos
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /devices/{deviceId}/locations:
+    parameters:
+      - $ref: '#/components/parameters/DeviceId'
+    get:
+      operationId: listLocations
+      summary: Consultar historial de ubicación
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Historial paginado
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      operationId: ingestLocations
+      summary: Ingerir un lote de ubicaciones
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      responses:
+        '202':
+          description: Lote aceptado
+        '409':
+          description: Clave de idempotencia reutilizada con otro payload
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    DeviceId:
+      name: deviceId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      schema:
+        type: string
+        minLength: 8
+  responses:
+    InvalidRequest:
+      description: Solicitud inválida
+    Unauthorized:
+      description: Credencial ausente o inválida
+    Forbidden:
+      description: Recurso no autorizado

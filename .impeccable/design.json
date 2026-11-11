@@ -1,0 +1,119 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-11T05:48:29Z",
+  "title": "Design System: APU",
+  "extensions": {
+    "colorMeta": {
+      "mineral-paper": { "role": "neutral", "displayName": "Papel Mineral", "canonical": "#F3EBD8", "tonalRamp": ["oklch(15% 0.025 85)", "oklch(26% 0.025 85)", "oklch(38% 0.025 85)", "oklch(50% 0.025 85)", "oklch(62% 0.025 85)", "oklch(74% 0.025 85)", "oklch(86% 0.025 85)", "oklch(95% 0.025 85)"] },
+      "paper-light": { "role": "neutral", "displayName": "Papel Claro", "canonical": "#FAF5E9", "tonalRamp": ["oklch(15% 0.014 85)", "oklch(26% 0.014 85)", "oklch(38% 0.014 85)", "oklch(50% 0.014 85)", "oklch(62% 0.014 85)", "oklch(74% 0.014 85)", "oklch(86% 0.014 85)", "oklch(95% 0.014 85)"] },
+      "forest-ink": { "role": "primary", "displayName": "Tinta Bosque", "canonical": "#203B35", "tonalRamp": ["oklch(15% 0.035 175)", "oklch(26% 0.035 175)", "oklch(38% 0.035 175)", "oklch(50% 0.035 175)", "oklch(62% 0.035 175)", "oklch(74% 0.035 175)", "oklch(86% 0.035 175)", "oklch(95% 0.035 175)"] },
+      "forest-deep": { "role": "primary", "displayName": "Bosque Profundo", "canonical": "#142A26", "tonalRamp": ["oklch(15% 0.03 175)", "oklch(26% 0.03 175)", "oklch(38% 0.03 175)", "oklch(50% 0.03 175)", "oklch(62% 0.03 175)", "oklch(74% 0.03 175)", "oklch(86% 0.03 175)", "oklch(95% 0.03 175)"] },
+      "mineral-red": { "role": "secondary", "displayName": "Rojo Mineral", "canonical": "#C75A3A", "tonalRamp": ["oklch(15% 0.13 35)", "oklch(26% 0.13 35)", "oklch(38% 0.13 35)", "oklch(50% 0.13 35)", "oklch(62% 0.13 35)", "oklch(74% 0.13 35)", "oklch(86% 0.13 35)", "oklch(95% 0.13 35)"] },
+      "survey-yellow": { "role": "secondary", "displayName": "Amarillo de Levantamiento", "canonical": "#E1B84B", "tonalRamp": ["oklch(15% 0.12 85)", "oklch(26% 0.12 85)", "oklch(38% 0.12 85)", "oklch(50% 0.12 85)", "oklch(62% 0.12 85)", "oklch(74% 0.12 85)", "oklch(86% 0.12 85)", "oklch(95% 0.12 85)"] },
+      "river-blue": { "role": "tertiary", "displayName": "Azul Río", "canonical": "#447D88", "tonalRamp": ["oklch(15% 0.055 210)", "oklch(26% 0.055 210)", "oklch(38% 0.055 210)", "oklch(50% 0.055 210)", "oklch(62% 0.055 210)", "oklch(74% 0.055 210)", "oklch(86% 0.055 210)", "oklch(95% 0.055 210)"] },
+      "error-red": { "role": "secondary", "displayName": "Rojo de Error", "canonical": "#9F382B", "tonalRamp": ["oklch(15% 0.12 30)", "oklch(26% 0.12 30)", "oklch(38% 0.12 30)", "oklch(50% 0.12 30)", "oklch(62% 0.12 30)", "oklch(74% 0.12 30)", "oklch(86% 0.12 30)", "oklch(95% 0.12 30)"] },
+      "survey-line": { "role": "neutral", "displayName": "Línea de Levantamiento", "canonical": "rgba(32, 59, 53, 0.34)", "tonalRamp": ["oklch(15% 0.02 175 / 0.34)", "oklch(26% 0.02 175 / 0.34)", "oklch(38% 0.02 175 / 0.34)", "oklch(50% 0.02 175 / 0.34)", "oklch(62% 0.02 175 / 0.34)", "oklch(74% 0.02 175 / 0.34)", "oklch(86% 0.02 175 / 0.34)", "oklch(95% 0.02 175 / 0.34)"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Titulares breves de identidad y orientación." },
+      "wordmark": { "displayName": "Wordmark", "purpose": "Uso exclusivo para la marca APU." },
+      "body": { "displayName": "Body", "purpose": "Explicación legible y adaptable a localización." },
+      "label": { "displayName": "Label", "purpose": "Etiquetas persistentes de campos y controles." },
+      "coordinate": { "displayName": "Coordinate", "purpose": "Coordenadas, escalas, sellos y metadatos técnicos." }
+    },
+    "shadows": [],
+    "motion": [
+      { "name": "state-fast", "value": "150ms ease", "purpose": "Cambios de color, fondo y desplazamiento en controles." },
+      { "name": "survey-spin", "value": "900ms linear infinite", "purpose": "Rotación de la marca de levantamiento durante carga; se desactiva con reduced motion." }
+    ],
+    "breakpoints": [
+      { "name": "layout-compact", "value": "1120px" },
+      { "name": "mobile", "value": "760px" },
+      { "name": "mobile-narrow", "value": "430px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Acción principal con campo bosque y marca de levantamiento.",
+      "html": "<button class=\"ds-btn-primary\"><span>Iniciar sesión</span><span class=\"ds-survey-mark\" aria-hidden=\"true\"></span></button>",
+      "css": ".ds-btn-primary{display:flex;width:100%;min-height:3.25rem;align-items:center;justify-content:space-between;padding:0 1.05rem 0 1.2rem;border:2px solid var(--ink-deep,#142A26);border-radius:0;background:var(--ink,#203B35);color:var(--paper-soft,#FAF5E9);font:680 .82rem/1 \"Archivo Variable\",Archivo,sans-serif;cursor:pointer;transition:background-color 150ms ease,color 150ms ease,transform 150ms ease}.ds-btn-primary:hover{background:var(--survey-yellow,#E1B84B);color:var(--ink-deep,#142A26)}.ds-btn-primary:focus-visible{outline:3px solid var(--survey-yellow,#E1B84B);outline-offset:3px}.ds-btn-primary:active{transform:translateY(1px)}.ds-survey-mark{width:1.15rem;height:1.15rem;border:1px solid currentColor;transform:rotate(45deg)}"
+    },
+    {
+      "name": "Text Recovery Action",
+      "kind": "button",
+      "refersTo": null,
+      "description": "Acción secundaria transparente con subrayado estructural.",
+      "html": "<button class=\"ds-btn-text\">¿Olvidaste tu contraseña?</button>",
+      "css": ".ds-btn-text{display:inline-flex;min-height:2.75rem;align-items:center;padding:.18rem 0;border:0;border-bottom:1px solid currentColor;background:transparent;color:var(--ink,#203B35);font:620 .78rem/1.2 \"Archivo Variable\",Archivo,sans-serif;cursor:pointer}.ds-btn-text:hover{color:var(--mineral-red,#C75A3A)}.ds-btn-text:focus-visible{outline:3px solid var(--survey-yellow,#E1B84B);outline-offset:3px}.ds-btn-text:active{transform:translateY(1px)}"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Campo cuadrado con etiqueta persistente y foco azul río.",
+      "html": "<label class=\"ds-field\"><span>Correo electrónico</span><input type=\"email\" placeholder=\"nombre@ejemplo.com\"></label>",
+      "css": ".ds-field{display:grid;gap:.38rem;color:var(--ink-deep,#142A26);font:650 .82rem/1.2 \"Archivo Variable\",Archivo,sans-serif}.ds-field input{width:100%;min-height:3.15rem;padding:.8rem .9rem;border:2px solid var(--ink,#203B35);border-radius:0;background:rgba(255,252,244,.64);color:var(--ink-deep,#142A26);font:400 .94rem/1.4 \"Archivo Variable\",Archivo,sans-serif;transition:border-color 150ms ease,background-color 150ms ease}.ds-field input:hover{background:rgba(255,252,244,.9)}.ds-field input:focus-visible{border-color:var(--river-blue,#447D88);outline:3px solid rgba(68,125,136,.2);outline-offset:0}"
+    },
+    {
+      "name": "Login Legend",
+      "kind": "card",
+      "refersTo": "login-legend",
+      "description": "Contenedor de acceso recortado como leyenda cartográfica, sin sombra.",
+      "html": "<section class=\"ds-login-legend\"><span class=\"ds-legend-kicker\">LEYENDA / ACCESO ÚNICO</span><p>Formulario de acceso compartido</p></section>",
+      "css": ".ds-login-legend{position:relative;padding:2rem;border:1px solid rgba(32,59,53,.72);background:rgba(250,245,233,.92);color:var(--ink,#203B35);clip-path:polygon(0 0,calc(100% - 2rem) 0,100% 2rem,100% 100%,1.3rem 100%,0 calc(100% - 1.3rem));font-family:\"Archivo Variable\",Archivo,sans-serif}.ds-login-legend:before{position:absolute;top:0;right:1.8rem;width:3.3rem;height:.38rem;background:var(--mineral-red,#C75A3A);content:\"\"}.ds-login-legend:focus-within{outline:3px solid var(--survey-yellow,#E1B84B);outline-offset:3px}.ds-legend-kicker{color:var(--mineral-red,#C75A3A);font:700 .78rem/1 \"Barlow Condensed\",sans-serif;letter-spacing:.16em}.ds-login-legend p{margin:1rem 0 0}"
+    },
+    {
+      "name": "Registration Stamp",
+      "kind": "custom",
+      "refersTo": null,
+      "description": "Sello compacto de procedencia y registro cartográfico.",
+      "html": "<aside class=\"ds-stamp\"><span>Registro cartográfico</span><strong>La Paz · Bolivia</strong><small>APU / Acceso 001</small></aside>",
+      "css": ".ds-stamp{display:grid;gap:.28rem;width:max-content;padding:.8rem 1rem .85rem;border:1px solid rgba(32,59,53,.58);background:rgba(243,235,216,.62);color:var(--ink,#203B35);font-family:\"Barlow Condensed\",sans-serif;letter-spacing:.08em;text-transform:uppercase}.ds-stamp span,.ds-stamp small{font-size:.67rem}.ds-stamp strong{color:var(--mineral-red,#C75A3A);font-size:1.04rem}.ds-stamp:focus-visible{outline:3px solid var(--survey-yellow,#E1B84B);outline-offset:3px}"
+    },
+    {
+      "name": "Cartographic Position",
+      "kind": "nav",
+      "refersTo": null,
+      "description": "Patrón de posición registrada para navegación o contexto activo.",
+      "html": "<nav class=\"ds-position\" aria-label=\"Contexto\"><a href=\"#\" aria-current=\"page\">16°30′ S · Acceso</a></nav>",
+      "css": ".ds-position a{display:inline-flex;min-height:2.75rem;align-items:center;padding:0 .2rem;border-bottom:2px solid var(--survey-yellow,#E1B84B);color:var(--ink,#203B35);font:500 .76rem/1 \"Barlow Condensed\",sans-serif;letter-spacing:.13em;text-decoration:none;text-transform:uppercase}.ds-position a:hover{color:var(--mineral-red,#C75A3A)}.ds-position a:focus-visible{outline:3px solid var(--survey-yellow,#E1B84B);outline-offset:3px}.ds-position a:active{transform:translateY(1px)}"
+    }
+  ],
+  "narrative": {
+    "northStar": "El Atlas Protector",
+    "overview": "APU se comporta como un atlas topográfico andino que acompaña y orienta. El papel mineral, las reglas de levantamiento y las marcas de coordenadas dan una presencia física y territorial; la información permanece directa, legible y explícita porque la protección nunca debe confundirse con vigilancia oculta.\n\nLa interfaz es plana, precisa y táctil. Su identidad nace del contraste entre campos tranquilos de papel y evidencia cartográfica densa: curvas, ríos, crestas, rutas y puntos de registro. Rechaza la tarjeta SaaS genérica, los degradados tecnológicos sin contexto y la decoración que no explique estado, recorrido o jerarquía.",
+    "keyCharacteristics": [
+      "Papel mineral cálido como material continuo, no como fondo crema genérico.",
+      "Verde bosque estructural para texto, marcos, controles y límites.",
+      "Acentos cartográficos escasos: amarillo de levantamiento, rojo mineral y azul río.",
+      "Tipografía funcional con una capa condensada para coordenadas, sellos y metadatos.",
+      "Geometría recta, muescas y marcas de registro en lugar de tarjetas redondeadas.",
+      "Estados visibles y lenguaje transparente para una audiencia no técnica y multilingüe."
+    ],
+    "rules": [
+      { "name": "The One Route Rule", "body": "El amarillo aparece como una sola ruta o señal prioritaria por contexto; no se dispersa como acento decorativo.", "section": "colors" },
+      { "name": "The Paper Is Material Rule", "body": "Las superficies claras deben conservar calidez, textura y relación con el campo cartográfico; no se sustituyen por blanco clínico ni crema plano genérico.", "section": "colors" },
+      { "name": "The Two Voices Rule", "body": "Archivo habla a las personas; Barlow Condensed anota el mapa. No se usa la condensada para párrafos, errores ni instrucciones esenciales.", "section": "typography" },
+      { "name": "The Continuous Field Rule", "body": "El fondo y la estructura espacial forman un solo territorio; no se fragmentan en un mosaico de tarjetas flotantes.", "section": "layout" },
+      { "name": "The No SaaS Shadow Rule", "body": "Las superficies de trabajo y leyendas se delimitan con trazos, muescas y material, nunca con la sombra difusa de una tarjeta genérica.", "section": "elevation" },
+      { "name": "The Registered Geometry Rule", "body": "Cada círculo, rombo o muesca indica una coordenada, un estado o un punto de llegada; la geometría especial nunca es relleno ornamental.", "section": "shapes" }
+    ],
+    "dos": [
+      "Do usar papel mineral, reglas y densidad cartográfica para construir jerarquía antes de añadir contenedores.",
+      "Do reservar amarillo, rojo y azul para rutas, registros y estados con significado concreto.",
+      "Do mantener Archivo en contenido humano y Barlow Condensed en anotación técnica.",
+      "Do conservar errores, foco, carga, permisos y destino autorizado como información explícita.",
+      "Do retirar marcas cartográficas secundarias antes que contenido cuando disminuye el viewport."
+    ],
+    "donts": [
+      "Don't introducir tarjetas SaaS centradas, sombras ambientales, radios blandos o píldoras como lenguaje por defecto.",
+      "Don't convertir los acentos minerales en una paleta multicolor decorativa.",
+      "Don't recrear la cartografía principal con curvas SVG improvisadas cuando existe un raster de procedencia aprobada.",
+      "Don't usar un selector de rol en el acceso compartido; los permisos y el backend determinan el destino.",
+      "Don't fijar alturas que impidan expansión de texto o localización futura."
+    ]
+  }
+}

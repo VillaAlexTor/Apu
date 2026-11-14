@@ -2,10 +2,10 @@
 
 ## Requisitos locales
 
-- Go 1.22 o superior.
-- Node.js 20 o superior y pnpm.
+- Go 1.26 o superior dentro de la serie soportada por el proyecto.
+- Node.js 24 LTS y pnpm 10.
 - JDK 17 y Android Studio.
-- PostgreSQL 15 o Docker.
+- PostgreSQL 18 o Docker.
 - Git.
 
 ## Preparación
@@ -16,6 +16,9 @@ cd Apu
 docker compose up -d postgres
 ```
 
+La guía completa para ejecutar servicios individuales o todo el stack está en
+[`docker.md`](./docker.md).
+
 Cada aplicación tendrá un `.env.example`. Los archivos `.env`, claves Firebase,
 keystores y credenciales nunca se versionan.
 
@@ -25,7 +28,7 @@ keystores y credenciales nunca se versionan.
 # Backend
 cd backend
 go test ./...
-go run ./cmd/apu-server
+go run ./cmd/apu-api
 
 # Dashboard
 cd dashboard

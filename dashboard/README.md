@@ -11,7 +11,7 @@ pnpm install
 pnpm dev
 ```
 
-La aplicación queda disponible en [http://localhost:3000](http://localhost:3000).
+La aplicación queda disponible en [http://localhost:3001](http://localhost:3001).
 
 ## Verificación
 

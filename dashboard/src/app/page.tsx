@@ -14,8 +14,6 @@ export default function Home() {
           <span className="wordmark">APU</span>
           <span className="survey-rule" aria-hidden="true" />
         </div>
-        <h1 id="login-title">Cuidar también es ser transparentes.</h1>
-        <p>Un solo acceso para cada persona autorizada. Tus permisos definen el espacio que verás después.</p>
       </section>
 
       <aside className="registration-stamp" aria-label="Origen de APU">

@@ -372,7 +372,7 @@ cd apu
 cd backend
 APU_ENV=local \
 APU_HTTP_ADDR=:8080 \
-APU_DATABASE_URL='postgres://apu:apu_local_only@localhost:5432/apu?sslmode=disable' \
+APU_DATABASE_URL='postgres://apu:apu_local_only@localhost:5433/apu?sslmode=disable' \
 go run ./cmd/apu-api
 ```
 

@@ -20,7 +20,6 @@ export default function Home() {
 
       <aside className="registration-stamp" aria-label="Origen de APU">
         <span>Registro cartográfico</span>
-        <strong>La Paz · Bolivia</strong>
         <small>APU / Acceso 001</small>
       </aside>
 

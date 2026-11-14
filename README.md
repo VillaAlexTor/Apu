@@ -353,12 +353,11 @@ Esta es la función más sensible del proyecto y se trata con reglas propias.
 ## 🛠️ Instalación y desarrollo
 
 ### Requisitos
-- Go 1.22+
-- Node.js 20+ y pnpm
-- PostgreSQL 15+
+- Go 1.26+
+- Node.js 24 LTS y pnpm 10
+- PostgreSQL 18
 - Android Studio (Koala o superior), JDK 17
-- Docker y Docker Compose (opcional)
-- Proyecto de Firebase (para FCM)
+- Docker y Docker Compose para ejecutar el stack integrado
 
 ### 1. Clonar
 
@@ -371,43 +370,37 @@ cd apu
 
 ```bash
 cd backend
-cp .env.example .env        # editar credenciales y claves
-go mod download
-go run ./cmd/apu-server
+APU_ENV=local \
+APU_HTTP_ADDR=:8080 \
+APU_DATABASE_URL='postgres://apu:apu_local_only@localhost:5432/apu?sslmode=disable' \
+go run ./cmd/apu-api
 ```
 
-Variables principales (`.env`):
-
-```env
-APU_ENV=development
-APU_PORT=8080
-DATABASE_URL=postgres://apu:apu@localhost:5432/apu?sslmode=disable
-JWT_SECRET=cambia-esto
-FCM_CREDENTIALS_FILE=./secrets/fcm.json
-FIELD_ENCRYPTION_KEY=base64-32-bytes
-```
+El backend actual es un bootstrap con endpoints de salud; autenticación y
+dominio todavía no están implementados.
 
 ### 3. Panel (Next.js)
 
 ```bash
 cd dashboard
 pnpm install
-cp .env.example .env.local   # NEXT_PUBLIC_API_URL=http://localhost:8080/api/v1
 pnpm dev
 ```
 
 ### 4. App Android
 
-1. Abrir la carpeta `android/` en Android Studio.
-2. Colocar `google-services.json` (de Firebase) en `android/app/`.
-3. Configurar `API_BASE_URL` en `local.properties`.
-4. Ejecutar en un dispositivo o emulador.
+La aplicación Android todavía no existe como proyecto compilable. Su
+arquitectura prevista está documentada en `docs/arquitectura-android.md`.
 
 ### 5. Todo con Docker
 
 ```bash
 docker compose up --build
 ```
+
+Consulta [la guía completa de Docker](docs/docker.md) para ejecutar únicamente
+el frontend, el backend con PostgreSQL o todo el stack, además de los comandos
+de diagnóstico y limpieza.
 
 ---
 

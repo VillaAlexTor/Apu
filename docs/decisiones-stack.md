@@ -43,7 +43,7 @@ integral antes de publicar.
 
 | Área | Decisión |
 |---|---|
-| Runtime | Node.js 26 LTS |
+| Runtime | Node.js 24 LTS |
 | Framework | Next.js estable con App Router |
 | Lenguaje | TypeScript con modo estricto |
 | UI | React y componentes propios sobre primitivas de shadcn/ui |
@@ -75,7 +75,7 @@ integral antes de publicar.
 
 | Área | Decisión |
 |---|---|
-| Lenguaje | Go 1.27.x estable |
+| Lenguaje | Go 1.26.x estable |
 | HTTP/router | `net/http` + `chi` |
 | Contrato | REST JSON bajo `/api/v1` + OpenAPI 3.1 |
 | PostgreSQL | `pgx/v5` |

@@ -16,7 +16,7 @@ deben reutilizarse en producción.
 ## Requisitos
 
 - Docker Desktop o Docker Engine con Docker Compose.
-- Puertos libres: `3000`, `8080` y `5432`.
+- Puertos libres: `3001`, `8081` y `5433`.
 
 Comprueba la instalación:
 
@@ -51,7 +51,7 @@ El login actual no consume todavía la API, por lo que puede ejecutarse solo:
 docker compose up --build dashboard
 ```
 
-Abre <http://localhost:3000>. Para detenerlo, usa `Ctrl+C` y después:
+Abre <http://localhost:3001>. Para detenerlo, usa `Ctrl+C` y después:
 
 ```bash
 docker compose down
@@ -61,7 +61,7 @@ Alternativa sin Compose:
 
 ```bash
 docker build -t apu-dashboard ./dashboard
-docker run --rm -p 3000:3000 apu-dashboard
+docker run --rm -p 3001:3000 apu-dashboard
 ```
 
 ## 2. Encender el backend
@@ -76,17 +76,17 @@ docker compose up --build backend
 Comprueba sus endpoints:
 
 ```bash
-curl http://localhost:8080/healthz
-curl http://localhost:8080/readyz
-curl http://localhost:8080/api/v1
+curl http://localhost:8081/healthz
+curl http://localhost:8081/readyz
+curl http://localhost:8081/api/v1
 ```
 
 En PowerShell también puedes usar:
 
 ```powershell
-Invoke-RestMethod http://localhost:8080/healthz
-Invoke-RestMethod http://localhost:8080/readyz
-Invoke-RestMethod http://localhost:8080/api/v1
+Invoke-RestMethod http://localhost:8081/healthz
+Invoke-RestMethod http://localhost:8081/readyz
+Invoke-RestMethod http://localhost:8081/api/v1
 ```
 
 Para ejecutar la imagen del backend sin Compose, primero debes proporcionar
@@ -94,7 +94,7 @@ una URL de PostgreSQL accesible desde el contenedor:
 
 ```bash
 docker build -t apu-backend ./backend
-docker run --rm -p 8080:8080 \
+docker run --rm -p 8081:8080 \
   -e APU_ENV=local \
   -e APU_HTTP_ADDR=:8080 \
   -e APU_DATABASE_URL=postgres://apu:password@host.docker.internal:5432/apu?sslmode=disable \
@@ -113,11 +113,11 @@ Servicios disponibles:
 
 | Servicio | Dirección | Propósito |
 |---|---|---|
-| Dashboard | <http://localhost:3000> | Login web de APU |
-| API | <http://localhost:8080/api/v1> | Bootstrap de la API Go |
-| Salud API | <http://localhost:8080/healthz> | Proceso disponible |
-| Readiness API | <http://localhost:8080/readyz> | PostgreSQL alcanzable desde la API |
-| PostgreSQL | `localhost:5432` | Base local de desarrollo |
+| Dashboard | <http://localhost:3001> | Login web de APU |
+| API | <http://localhost:8081/api/v1> | Bootstrap de la API Go |
+| Salud API | <http://localhost:8081/healthz> | Proceso disponible |
+| Readiness API | <http://localhost:8081/readyz> | PostgreSQL alcanzable desde la API |
+| PostgreSQL | `localhost:5433` | Base local de desarrollo |
 
 Para ejecutarlo en segundo plano:
 
@@ -151,8 +151,8 @@ PowerShell:
 ```powershell
 cd backend
 $env:APU_ENV = "local"
-$env:APU_HTTP_ADDR = ":8080"
-$env:APU_DATABASE_URL = "postgres://apu:apu_local_only@localhost:5432/apu?sslmode=disable"
+$env:APU_HTTP_ADDR = ":8081"
+$env:APU_DATABASE_URL = "postgres://apu:apu_local_only@localhost:5433/apu?sslmode=disable"
 go run ./cmd/apu-api
 ```
 
@@ -161,8 +161,8 @@ Bash:
 ```bash
 cd backend
 APU_ENV=local \
-APU_HTTP_ADDR=:8080 \
-APU_DATABASE_URL='postgres://apu:apu_local_only@localhost:5432/apu?sslmode=disable' \
+APU_HTTP_ADDR=:8081 \
+APU_DATABASE_URL='postgres://apu:apu_local_only@localhost:5433/apu?sslmode=disable' \
 go run ./cmd/apu-api
 ```
 

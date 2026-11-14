@@ -47,6 +47,7 @@ en el mismo cambio.
 ### Desarrollo y calidad
 
 - [Guía de desarrollo](./guia-desarrollo.md)
+- [Ejecución local con Docker](./docker.md)
 - [Convenciones de código](./convenciones-codigo.md)
 - [Configuración por entorno](./configuracion.md)
 - [Estrategia de pruebas](./estrategia-pruebas.md)

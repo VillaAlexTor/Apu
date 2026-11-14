@@ -9,7 +9,7 @@ export default function Home() {
       <div className="map-quiet-field" aria-hidden="true" />
       <CartographicFrame />
 
-      <section className="brand-block" aria-labelledby="login-title">
+      <section className="brand-block" aria-label="APU">
         <div className="brand-lockup">
           <span className="wordmark">APU</span>
           <span className="survey-rule" aria-hidden="true" />

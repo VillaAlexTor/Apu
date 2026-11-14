@@ -52,7 +52,8 @@ button {
   position: relative;
   display: grid;
   grid-template-columns: minmax(0, 54fr) minmax(31rem, 46fr);
-  grid-template-rows: 42fr 58fr;
+  grid-template-rows: auto 1fr;
+  row-gap: clamp(3rem, 7vh, 5.5rem);
   min-height: 100svh;
   overflow: hidden;
   padding: clamp(2rem, 3.5vw, 4.5rem);
@@ -231,24 +232,6 @@ button {
   clip-path: polygon(0 0, 100% 0, 93% 100%, 0 100%);
 }
 
-.brand-block h1 {
-  max-width: 12ch;
-  margin: clamp(1.35rem, 2.3vh, 2.5rem) 0 0;
-  color: var(--ink-deep);
-  font-size: clamp(2rem, 3.1vw, 3.65rem);
-  font-weight: 650;
-  line-height: 0.98;
-  letter-spacing: -0.055em;
-}
-
-.brand-block p {
-  max-width: 38rem;
-  margin: 1rem 0 0;
-  color: rgba(20, 42, 38, 0.82);
-  font-size: clamp(0.88rem, 1vw, 1.02rem);
-  line-height: 1.45;
-}
-
 .registration-stamp {
   align-self: end;
   justify-self: start;
@@ -272,7 +255,7 @@ button {
 
 .login-legend {
   position: relative;
-  align-self: end;
+  align-self: start;
   justify-self: end;
   grid-column: 2;
   grid-row: 2;
@@ -512,17 +495,15 @@ button {
 
   .brand-block {
     width: 100%;
-    min-height: 35svh;
-    padding: 0.3rem 0 2rem;
+    min-height: clamp(9rem, 23svh, 12rem);
+    padding: 0.3rem 0 1.25rem;
   }
 
   .wordmark { font-size: clamp(4.5rem, 24vw, 7rem); }
-  .brand-block h1 { margin-top: 1.25rem; font-size: clamp(2.15rem, 10vw, 3.4rem); }
-  .brand-block p { max-width: 31rem; }
 
   .registration-stamp {
     position: absolute;
-    top: 19rem;
+    top: clamp(7.5rem, 16svh, 9rem);
     right: 1.4rem;
     margin: 0;
     background: rgba(243, 235, 216, 0.8);
@@ -537,8 +518,7 @@ button {
 
 @media (max-width: 430px) {
   .login-page { padding-inline: 1rem; }
-  .registration-stamp { top: 18rem; right: 1rem; transform: scale(0.88); transform-origin: right top; }
-  .brand-block p { max-width: 25ch; }
+  .registration-stamp { top: 7rem; right: 1rem; transform: scale(0.82); transform-origin: right top; }
   .login-legend { clip-path: polygon(0 0, calc(100% - 1.4rem) 0, 100% 1.4rem, 100% 100%, 0.9rem 100%, 0 calc(100% - 0.9rem)); }
 }
 

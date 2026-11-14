@@ -42,6 +42,8 @@ backend/bin/
 backend/tmp/
 backend/coverage.out
 backend/*.test
+backend/apu-api
+backend/apu-api.exe
 
 # Android / Gradle
 android/.gradle/

@@ -130,8 +130,9 @@ ya existe y registra la creación en `audit_log`. No incluyas estas variables en
 `.env` ni en el historial del repositorio.
 
 Después, abre <http://localhost:3001> e inicia sesión. El backend responderá
-con el destino autorizado `/platform`; ese dashboard se construirá en el
-siguiente corte.
+con el destino autorizado `/platform`. Desde ese dashboard puedes crear la
+primera organización, invitar a su propietario y copiar el enlace de activación
+de un solo uso.
 
 Servicios disponibles:
 

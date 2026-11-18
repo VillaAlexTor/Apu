@@ -1,19 +1,26 @@
 # syntax=docker/dockerfile:1.7
 
-FROM golang:1.26-alpine3.24 AS build
+FROM golang:1.26.11-alpine3.24 AS build
 
 WORKDIR /src
 
-COPY go.mod ./
+COPY go.mod go.sum ./
 RUN go mod download
 
 COPY cmd ./cmd
+COPY internal ./internal
 
 RUN CGO_ENABLED=0 GOOS=linux go build \
     -trimpath \
     -ldflags="-s -w" \
     -o /out/apu-api \
     ./cmd/apu-api
+
+RUN CGO_ENABLED=0 GOOS=linux go build \
+    -trimpath \
+    -ldflags="-s -w" \
+    -o /out/apu-admin \
+    ./cmd/apu-admin
 
 FROM alpine:3.24 AS runtime
 
@@ -22,6 +29,7 @@ RUN apk add --no-cache ca-certificates tzdata \
     && adduser -S -G apu -u 10001 apu
 
 COPY --from=build /out/apu-api /usr/local/bin/apu-api
+COPY --from=build /out/apu-admin /usr/local/bin/apu-admin
 
 USER apu
 EXPOSE 8080
@@ -32,4 +40,4 @@ ENV APU_ENV=local \
 HEALTHCHECK --interval=10s --timeout=3s --start-period=5s --retries=5 \
     CMD wget -qO- http://127.0.0.1:8080/healthz >/dev/null || exit 1
 
-ENTRYPOINT ["/usr/local/bin/apu-api"]
+CMD ["/usr/local/bin/apu-api"]

@@ -34,6 +34,6 @@ Desactivar un usuario revoca sus sesiones, pero no elimina la auditoría histór
 ## Autenticación
 
 Contraseña con Argon2id, MFA para roles administrativos, sesiones de corta
-duración y refresh tokens rotativos. El proveedor de pagos no autentica usuarios
+duración y revocación inmediata. El proveedor de pagos no autentica usuarios
 de APU: solo comunica eventos verificados.
 

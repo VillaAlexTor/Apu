@@ -15,6 +15,18 @@ datos familiares sensibles.
 - gestionar tickets y notas de soporte sin datos sensibles;
 - ejecutar acciones excepcionales con doble confirmación.
 
+## Estado implementado
+
+El panel `/platform`, autorizado en este corte para `platform_admin`, ya permite
+consultar el resumen operativo, crear y cambiar el estado de tenants, invitar
+usuarios, asignar roles, suspender, reactivar o desactivar cuentas, revocar
+sesiones y consultar los últimos registros de auditoría. Las acciones se
+autorizan nuevamente en el backend y requieren protección CSRF. Suspender o
+desactivar una cuenta revoca sus sesiones activas.
+
+Facturación, salud de workers, FCM, tickets y acciones excepcionales permanecen
+fuera de este corte.
+
 ## Restricciones
 
 - No mostrar coordenadas ni historial de ubicación en listados administrativos.

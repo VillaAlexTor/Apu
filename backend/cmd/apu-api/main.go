@@ -19,7 +19,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-const version = "0.2.0"
+const version = "0.3.0"
 
 type config struct {
 	environment   string

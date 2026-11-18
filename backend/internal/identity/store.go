@@ -16,6 +16,7 @@ import (
 var (
 	ErrNotFound      = errors.New("identity not found")
 	ErrEmailConflict = errors.New("email is already registered")
+	ErrConflict      = errors.New("identity state conflict")
 )
 
 type Store struct {
@@ -29,7 +30,7 @@ func NewStore(pool *pgxpool.Pool) *Store {
 func (store *Store) FindUserByEmail(ctx context.Context, email string) (User, error) {
 	var user User
 	err := store.pool.QueryRow(ctx, `
-		SELECT id::text, email::text, display_name, password_hash, status, platform_role
+		SELECT id::text, email::text, display_name, COALESCE(password_hash, ''), status, platform_role
 		FROM users
 		WHERE email = $1
 	`, email).Scan(
@@ -128,7 +129,7 @@ func (store *Store) SessionByToken(ctx context.Context, token string) (Session, 
 		          users.id::text,
 		          users.email::text,
 		          users.display_name,
-		          users.password_hash,
+		          COALESCE(users.password_hash, ''),
 		          users.status,
 		          users.platform_role
 	`, tokenHash[:]).Scan(

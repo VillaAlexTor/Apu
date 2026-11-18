@@ -5,6 +5,9 @@
 .impeccable/login-surface-brief.md
 .impeccable/surfaces/
 .impeccable/review/
+.impeccable/build/
+.impeccable/*-surface-options.json
+.impeccable/*-surface-brief-body.md
 .impeccable/edge-profile/
 .impeccable/mocks/login/
 .impeccable/mocks/decision/*

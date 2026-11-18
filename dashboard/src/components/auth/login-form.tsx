@@ -7,14 +7,22 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { FormField } from "@/components/ui/form-field";
 import { SubmitButton } from "@/components/ui/submit-button";
+import { APIError, login } from "@/lib/api";
 
 const loginSchema = z.object({
   email: z.string().trim().min(1, "Ingresa tu correo electrónico.").email("Escribe un correo electrónico válido."),
-  password: z.string().min(1, "Ingresa tu contraseña.").min(8, "La contraseña debe tener al menos 8 caracteres."),
+  password: z.string().min(1, "Ingresa tu contraseña."),
 });
 
 type LoginValues = z.infer<typeof loginSchema>;
-type Feedback = { kind: "info" | "error"; text: string } | null;
+type Feedback = { kind: "info" | "error" | "success"; text: string } | null;
+
+const destinationLabels: Record<string, string> = {
+  "/platform": "administración de APU",
+  "/admin": "administración del cliente",
+  "/familia": "panel familiar",
+  "/acceso-pendiente": "acceso pendiente",
+};
 
 export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -25,10 +33,20 @@ export function LoginForm() {
     defaultValues: { email: "", password: "" },
   });
 
-  async function onSubmit() {
+  async function onSubmit(values: LoginValues) {
     setFeedback(null);
-    await new Promise((resolve) => window.setTimeout(resolve, 700));
-    setFeedback({ kind: "info", text: "El formulario está listo. La sesión se activará cuando conectemos la API de Go." });
+    try {
+      const result = await login(values.email, values.password);
+      setFeedback({
+        kind: "success",
+        text: `Sesión iniciada para ${result.user.displayName}. Destino autorizado: ${destinationLabels[result.redirect] ?? "panel asignado"}.`,
+      });
+    } catch (error) {
+      setFeedback({
+        kind: "error",
+        text: error instanceof APIError ? error.message : "No pudimos conectar con el servicio de acceso.",
+      });
+    }
   }
 
   function showRecoveryStatus() {

@@ -1,42 +1,69 @@
 openapi: 3.0.3
 info:
   title: APU API
-  version: 0.1.0
-  description: Contrato inicial de la API pública de APU.
+  version: 0.2.0
+  description: Contrato versionado de la API de APU.
+  license:
+    name: Uso privado; todos los derechos reservados
+    url: https://github.com/VillaAlexTor/apu
 servers:
   - url: https://api.example.invalid/api/v1
 paths:
-  /auth/register:
-    post:
-      operationId: register
-      summary: Crear una cuenta
-      security: []
-      responses:
-        '201':
-          description: Cuenta creada
-        '400':
-          $ref: '#/components/responses/InvalidRequest'
   /auth/login:
     post:
       operationId: login
       summary: Iniciar sesión
       security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
       responses:
         '200':
           description: Sesión creada
+          headers:
+            Set-Cookie:
+              description: Cookie opaca de sesión HttpOnly.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
-  /me:
+        '429':
+          description: Demasiados intentos de acceso
+  /auth/me:
     get:
       operationId: getMe
       summary: Obtener identidad y tenants
       security:
-        - bearerAuth: []
+        - sessionCookie: []
       responses:
         '200':
           description: Identidad autorizada
         '401':
           $ref: '#/components/responses/Unauthorized'
+  /auth/logout:
+    post:
+      operationId: logout
+      summary: Revocar la sesión actual
+      security:
+        - sessionCookie: []
+      parameters:
+        - $ref: '#/components/parameters/CSRFToken'
+      responses:
+        '204':
+          description: Sesión revocada
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
   /pairing/code:
     post:
       operationId: createPairingCode
@@ -86,11 +113,21 @@ paths:
           description: Clave de idempotencia reutilizada con otro payload
 components:
   securitySchemes:
+    sessionCookie:
+      type: apiKey
+      in: cookie
+      name: apu_session
     bearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
   parameters:
+    CSRFToken:
+      name: X-CSRF-Token
+      in: header
+      required: true
+      schema:
+        type: string
     DeviceId:
       name: deviceId
       in: path
@@ -112,3 +149,59 @@ components:
       description: Credencial ausente o inválida
     Forbidden:
       description: Recurso no autorizado
+  schemas:
+    LoginRequest:
+      type: object
+      additionalProperties: false
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+          maxLength: 320
+        password:
+          type: string
+          format: password
+          maxLength: 1024
+    Membership:
+      type: object
+      required: [tenantId, tenantName, role]
+      properties:
+        tenantId:
+          type: string
+          format: uuid
+        tenantName:
+          type: string
+        role:
+          type: string
+          enum: [tenant_owner, tenant_admin, guardian]
+    User:
+      type: object
+      required: [id, email, displayName, memberships]
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        displayName:
+          type: string
+        platformRole:
+          type: string
+          enum: [platform_admin, support_agent]
+        memberships:
+          type: array
+          items:
+            $ref: '#/components/schemas/Membership'
+    LoginResponse:
+      type: object
+      required: [user, redirect, csrfToken]
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+        redirect:
+          type: string
+          enum: [/platform, /admin, /familia, /acceso-pendiente]
+        csrfToken:
+          type: string

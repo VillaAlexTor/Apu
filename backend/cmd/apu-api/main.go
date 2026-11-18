@@ -2,163 +2,150 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
-	"io"
+	"fmt"
 	"log/slog"
-	"net"
 	"net/http"
-	"net/url"
 	"os"
 	"os/signal"
+	"strconv"
 	"strings"
 	"syscall"
 	"time"
+
+	"github.com/VillaAlexTor/Apu/backend/internal/database"
+	"github.com/VillaAlexTor/Apu/backend/internal/httpapi"
+	"github.com/VillaAlexTor/Apu/backend/internal/identity"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-const version = "0.1.0"
-
-var databaseDial = func(network, address string, timeout time.Duration) (io.Closer, error) {
-	return net.DialTimeout(network, address, timeout)
-}
+const version = "0.2.0"
 
 type config struct {
-	environment string
-	httpAddress string
-	databaseURL string
-}
-
-type response struct {
-	Service     string `json:"service"`
-	Status      string `json:"status"`
-	Version     string `json:"version,omitempty"`
-	Environment string `json:"environment,omitempty"`
+	environment   string
+	httpAddress   string
+	databaseURL   string
+	allowedOrigin string
+	cookieSecure  bool
+	sessionTTL    time.Duration
 }
 
 func main() {
-	cfg := loadConfig()
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+	if err := run(logger); err != nil {
+		logger.Error("apu api stopped", "error", err)
+		os.Exit(1)
+	}
+}
 
-	mux := http.NewServeMux()
-	mux.HandleFunc("GET /healthz", writeJSON(http.StatusOK, response{
-		Service: "apu-api",
-		Status:  "ok",
-		Version: version,
-	}))
-	mux.HandleFunc("GET /readyz", readinessHandler(cfg))
-	mux.HandleFunc("GET /api/v1", writeJSON(http.StatusOK, response{
-		Service:     "apu-api",
-		Status:      "bootstrap",
-		Version:     version,
-		Environment: cfg.environment,
-	}))
+func run(logger *slog.Logger) error {
+	cfg, err := loadConfig()
+	if err != nil {
+		return err
+	}
+
+	rootContext, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+
+	pool, err := database.Open(rootContext, cfg.databaseURL)
+	if err != nil {
+		return err
+	}
+	defer pool.Close()
+
+	api, err := httpapi.New(identity.NewStore(pool), logger, httpapi.Config{
+		AllowedOrigin: cfg.allowedOrigin,
+		CookieSecure:  cfg.cookieSecure,
+		SessionTTL:    cfg.sessionTTL,
+	})
+	if err != nil {
+		return fmt.Errorf("create http api: %w", err)
+	}
 
 	server := &http.Server{
 		Addr:              cfg.httpAddress,
-		Handler:           requestLogger(logger, mux),
+		Handler:           api.Handler(healthHandler(), readinessHandler(pool)),
 		ReadHeaderTimeout: 5 * time.Second,
 		ReadTimeout:       10 * time.Second,
 		WriteTimeout:      15 * time.Second,
 		IdleTimeout:       60 * time.Second,
 	}
 
+	serverErrors := make(chan error, 1)
 	go func() {
 		logger.Info("apu api listening", "address", cfg.httpAddress, "environment", cfg.environment)
-		if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			logger.Error("api server stopped unexpectedly", "error", err)
-			os.Exit(1)
-		}
+		serverErrors <- server.ListenAndServe()
 	}()
 
-	shutdownSignal, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
-	defer stop()
-	<-shutdownSignal.Done()
-
-	shutdownContext, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-	if err := server.Shutdown(shutdownContext); err != nil {
-		logger.Error("graceful shutdown failed", "error", err)
-		os.Exit(1)
+	select {
+	case <-rootContext.Done():
+		shutdownContext, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		if err := server.Shutdown(shutdownContext); err != nil {
+			return fmt.Errorf("graceful shutdown: %w", err)
+		}
+		logger.Info("apu api stopped gracefully")
+		return nil
+	case err := <-serverErrors:
+		if errors.Is(err, http.ErrServerClosed) {
+			return nil
+		}
+		return fmt.Errorf("serve http: %w", err)
 	}
-	logger.Info("apu api stopped")
 }
 
-func loadConfig() config {
+func loadConfig() (config, error) {
+	environment := envOrDefault("APU_ENV", "local")
+	databaseURL := strings.TrimSpace(os.Getenv("APU_DATABASE_URL"))
+	if databaseURL == "" {
+		return config{}, errors.New("APU_DATABASE_URL is required")
+	}
+	sessionTTL, err := time.ParseDuration(envOrDefault("APU_SESSION_TTL", "12h"))
+	if err != nil || sessionTTL < 15*time.Minute || sessionTTL > 7*24*time.Hour {
+		return config{}, errors.New("APU_SESSION_TTL must be between 15m and 168h")
+	}
+	cookieSecure, err := strconv.ParseBool(envOrDefault("APU_COOKIE_SECURE", "false"))
+	if err != nil {
+		return config{}, errors.New("APU_COOKIE_SECURE must be true or false")
+	}
+	allowedOrigin := envOrDefault("APU_ALLOWED_ORIGIN", "http://localhost:3001")
+	if environment == "production" && (!cookieSecure || !strings.HasPrefix(allowedOrigin, "https://")) {
+		return config{}, errors.New("production requires secure cookies and an HTTPS allowed origin")
+	}
+
 	return config{
-		environment: envOrDefault("APU_ENV", "local"),
-		httpAddress: envOrDefault("APU_HTTP_ADDR", ":8080"),
-		databaseURL: strings.TrimSpace(os.Getenv("APU_DATABASE_URL")),
+		environment:   environment,
+		httpAddress:   envOrDefault("APU_HTTP_ADDR", ":8080"),
+		databaseURL:   databaseURL,
+		allowedOrigin: allowedOrigin,
+		cookieSecure:  cookieSecure,
+		sessionTTL:    sessionTTL,
+	}, nil
+}
+
+func healthHandler() http.HandlerFunc {
+	return func(writer http.ResponseWriter, _ *http.Request) {
+		writeStatus(writer, http.StatusOK, "ok")
 	}
 }
 
-func readinessHandler(cfg config) http.HandlerFunc {
-	return func(writer http.ResponseWriter, _ *http.Request) {
-		if cfg.databaseURL == "" {
-			writeJSON(http.StatusServiceUnavailable, response{
-				Service: "apu-api",
-				Status:  "database_not_configured",
-			})(writer, nil)
+func readinessHandler(pool *pgxpool.Pool) http.HandlerFunc {
+	return func(writer http.ResponseWriter, request *http.Request) {
+		ctx, cancel := context.WithTimeout(request.Context(), 2*time.Second)
+		defer cancel()
+		if err := pool.Ping(ctx); err != nil {
+			writeStatus(writer, http.StatusServiceUnavailable, "database_unavailable")
 			return
 		}
-		if err := databaseReachable(cfg.databaseURL); err != nil {
-			writeJSON(http.StatusServiceUnavailable, response{
-				Service: "apu-api",
-				Status:  "database_unavailable",
-			})(writer, nil)
-			return
-		}
-
-		writeJSON(http.StatusOK, response{
-			Service: "apu-api",
-			Status:  "ready",
-			Version: version,
-		})(writer, nil)
+		writeStatus(writer, http.StatusOK, "ready")
 	}
 }
 
-func databaseReachable(databaseURL string) error {
-	parsedURL, err := url.Parse(databaseURL)
-	if err != nil {
-		return err
-	}
-
-	hostname := parsedURL.Hostname()
-	if hostname == "" {
-		return errors.New("database hostname is missing")
-	}
-	port := parsedURL.Port()
-	if port == "" {
-		port = "5432"
-	}
-
-	connection, err := databaseDial("tcp", net.JoinHostPort(hostname, port), 2*time.Second)
-	if err != nil {
-		return err
-	}
-	return connection.Close()
-}
-
-func requestLogger(logger *slog.Logger, next http.Handler) http.Handler {
-	return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
-		startedAt := time.Now()
-		next.ServeHTTP(writer, request)
-		logger.Info("http request",
-			"method", request.Method,
-			"path", request.URL.Path,
-			"duration_ms", time.Since(startedAt).Milliseconds(),
-		)
-	})
-}
-
-func writeJSON(status int, body response) http.HandlerFunc {
-	return func(writer http.ResponseWriter, _ *http.Request) {
-		writer.Header().Set("Content-Type", "application/json; charset=utf-8")
-		writer.Header().Set("Cache-Control", "no-store")
-		writer.WriteHeader(status)
-		if err := json.NewEncoder(writer).Encode(body); err != nil {
-			slog.Error("could not encode response", "error", err)
-		}
-	}
+func writeStatus(writer http.ResponseWriter, status int, state string) {
+	writer.Header().Set("Content-Type", "application/json; charset=utf-8")
+	writer.Header().Set("Cache-Control", "no-store")
+	writer.WriteHeader(status)
+	_, _ = fmt.Fprintf(writer, `{"service":"apu-api","status":%q,"version":%q}`+"\n", state, version)
 }
 
 func envOrDefault(name, fallback string) string {

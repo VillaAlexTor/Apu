@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: APU API
-  version: 0.2.0
+  version: 0.3.0
   description: Contrato versionado de la API de APU.
   license:
     name: Uso privado; todos los derechos reservados
@@ -62,6 +62,186 @@ paths:
           description: Sesión revocada
         '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /auth/activate:
+    post:
+      operationId: activateInvitation
+      summary: Aceptar invitación y establecer contraseña
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActivateInvitationRequest'
+      responses:
+        '200':
+          description: Cuenta activada
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+  /platform/summary:
+    get:
+      operationId: getPlatformSummary
+      summary: Obtener resumen operativo
+      security:
+        - sessionCookie: []
+      responses:
+        '200':
+          description: Resumen de tenants, usuarios e invitaciones
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlatformSummary'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /platform/tenants:
+    get:
+      operationId: listPlatformTenants
+      summary: Listar organizaciones
+      security:
+        - sessionCookie: []
+      responses:
+        '200':
+          description: Organizaciones visibles para plataforma
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      operationId: createPlatformTenant
+      summary: Crear organización
+      security:
+        - sessionCookie: []
+      parameters:
+        - $ref: '#/components/parameters/CSRFToken'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTenantRequest'
+      responses:
+        '201':
+          description: Organización creada
+        '409':
+          description: Identificador ya registrado
+  /platform/tenants/{tenantId}/status:
+    parameters:
+      - $ref: '#/components/parameters/TenantId'
+    patch:
+      operationId: setPlatformTenantStatus
+      summary: Cambiar estado de organización
+      security:
+        - sessionCookie: []
+      parameters:
+        - $ref: '#/components/parameters/CSRFToken'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StatusRequest'
+      responses:
+        '200':
+          description: Estado actualizado y auditado
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /platform/users:
+    get:
+      operationId: listPlatformUsers
+      summary: Listar usuarios, membresías y sesiones
+      security:
+        - sessionCookie: []
+      responses:
+        '200':
+          description: Usuarios de plataforma
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /platform/invitations:
+    post:
+      operationId: createPlatformInvitation
+      summary: Invitar o asignar usuario
+      security:
+        - sessionCookie: []
+      parameters:
+        - $ref: '#/components/parameters/CSRFToken'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateInvitationRequest'
+      responses:
+        '201':
+          description: Invitación o membresía creada
+        '409':
+          description: Membresía existente o estado incompatible
+  /platform/users/{userId}/status:
+    parameters:
+      - $ref: '#/components/parameters/UserId'
+    patch:
+      operationId: setPlatformUserStatus
+      summary: Suspender, reactivar o desactivar usuario
+      security:
+        - sessionCookie: []
+      parameters:
+        - $ref: '#/components/parameters/CSRFToken'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StatusRequest'
+      responses:
+        '200':
+          description: Estado actualizado; las sesiones se revocan al suspender o desactivar
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /platform/users/{userId}/sessions/revoke:
+    parameters:
+      - $ref: '#/components/parameters/UserId'
+    post:
+      operationId: revokePlatformUserSessions
+      summary: Revocar todas las sesiones activas de un usuario
+      security:
+        - sessionCookie: []
+      parameters:
+        - $ref: '#/components/parameters/CSRFToken'
+      responses:
+        '200':
+          description: Número de sesiones revocadas
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /platform/tenants/{tenantId}/users/{userId}:
+    parameters:
+      - $ref: '#/components/parameters/TenantId'
+      - $ref: '#/components/parameters/UserId'
+    patch:
+      operationId: setPlatformMembershipRole
+      summary: Cambiar rol de una membresía
+      security:
+        - sessionCookie: []
+      parameters:
+        - $ref: '#/components/parameters/CSRFToken'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoleRequest'
+      responses:
+        '200':
+          description: Rol actualizado y auditado
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /platform/audit:
+    get:
+      operationId: listPlatformAudit
+      summary: Consultar auditoría operacional reciente
+      security:
+        - sessionCookie: []
+      responses:
+        '200':
+          description: Últimos eventos administrativos
         '403':
           $ref: '#/components/responses/Forbidden'
   /pairing/code:
@@ -135,6 +315,20 @@ components:
       schema:
         type: string
         format: uuid
+    TenantId:
+      name: tenantId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    UserId:
+      name: userId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
     IdempotencyKey:
       name: Idempotency-Key
       in: header
@@ -150,6 +344,76 @@ components:
     Forbidden:
       description: Recurso no autorizado
   schemas:
+    ActivateInvitationRequest:
+      type: object
+      additionalProperties: false
+      required: [token, password]
+      properties:
+        token:
+          type: string
+          minLength: 32
+        password:
+          type: string
+          format: password
+          minLength: 12
+          maxLength: 1024
+    CreateTenantRequest:
+      type: object
+      additionalProperties: false
+      required: [name, slug]
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 160
+        slug:
+          type: string
+          pattern: '^[a-z0-9]+(?:-[a-z0-9]+)*$'
+          maxLength: 80
+    CreateInvitationRequest:
+      type: object
+      additionalProperties: false
+      required: [tenantId, email, displayName, role]
+      properties:
+        tenantId:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        displayName:
+          type: string
+          minLength: 1
+          maxLength: 160
+        role:
+          type: string
+          enum: [tenant_owner, tenant_admin, guardian]
+    StatusRequest:
+      type: object
+      additionalProperties: false
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [active, suspended, deactivated]
+    RoleRequest:
+      type: object
+      additionalProperties: false
+      required: [role]
+      properties:
+        role:
+          type: string
+          enum: [tenant_owner, tenant_admin, guardian]
+    PlatformSummary:
+      type: object
+      required: [tenantsTotal, tenantsActive, usersActive, usersInvited, usersSuspended, pendingInvitations]
+      properties:
+        tenantsTotal: { type: integer }
+        tenantsActive: { type: integer }
+        usersActive: { type: integer }
+        usersInvited: { type: integer }
+        usersSuspended: { type: integer }
+        pendingInvitations: { type: integer }
     LoginRequest:
       type: object
       additionalProperties: false

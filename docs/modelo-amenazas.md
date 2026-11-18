@@ -25,7 +25,7 @@
 
 | ID | Categoría | Amenaza | Control requerido | Verificación |
 |---|---|---|---|---|
-| T-01 | Spoofing | Robo de sesión del tutor | access token corto, refresh rotativo, revocación y MFA opcional | tests de sesión y revocación |
+| T-01 | Spoofing | Robo de sesión del tutor | cookie `HttpOnly`/`Secure`, sesión opaca limitada, CSRF, revocación y MFA administrativo | tests de sesión y revocación |
 | T-02 | Spoofing | Suplantación de dispositivo | clave en Keystore, firma de solicitudes y nonce/fecha | tests de firma inválida y replay |
 | T-03 | Tampering | Alteración de lotes | TLS, validación de esquema, idempotencia y firma | tests de payload y duplicados |
 | T-04 | Repudiation | Negación de acceso o comando | auditoría inmutable con actor, acción, objetivo y hora | tests de eventos de auditoría |

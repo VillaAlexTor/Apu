@@ -27,9 +27,9 @@ independientes. Nunca se reutilizan secretos entre entornos.
 | `APU_ENV` | API | sí | `local`, `ci`, `staging` o `production` |
 | `APU_HTTP_ADDR` | API | sí | dirección y puerto de escucha |
 | `APU_DATABASE_URL` | API | sí | conexión PostgreSQL |
-| `APU_JWT_ISSUER` | API | sí | emisor de tokens |
-| `APU_ACCESS_TOKEN_TTL` | API | sí | duración máxima del access token |
-| `APU_REFRESH_TOKEN_PEPPER` | API | sí | secreto para proteger refresh tokens |
+| `APU_ALLOWED_ORIGIN` | API | sí | origen exacto autorizado para el dashboard |
+| `APU_COOKIE_SECURE` | API | sí | exige cookies HTTPS; obligatorio en producción |
+| `APU_SESSION_TTL` | API | sí | duración de la sesión humana (`12h` por defecto local) |
 | `APU_FIELD_ENCRYPTION_KEY` | API | producción | clave de cifrado de campos |
 | `APU_FCM_CREDENTIALS` | API | producción | referencia al secreto FCM |
 | `NEXT_PUBLIC_API_BASE_URL` | dashboard | sí | URL pública de la API |
@@ -38,6 +38,10 @@ independientes. Nunca se reutilizan secretos entre entornos.
 Los nombres son el contrato inicial; cada aplicación debe incluir un
 `.env.example` sin valores reales y documentar variables adicionales junto con
 su tipo, valor permitido y responsable.
+
+El comando `apu-admin` requiere temporalmente `APU_BOOTSTRAP_EMAIL`,
+`APU_BOOTSTRAP_NAME` y `APU_BOOTSTRAP_PASSWORD`. No se guardan en `.env`; deben
+eliminarse del entorno inmediatamente después de crear el primer administrador.
 
 ## Rotación
 

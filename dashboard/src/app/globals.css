@@ -455,6 +455,7 @@ button {
 }
 
 .form-feedback.is-error { color: var(--error); }
+.form-feedback.is-success { color: var(--ink); }
 
 @keyframes survey-spin {
   to { transform: rotate(405deg); }

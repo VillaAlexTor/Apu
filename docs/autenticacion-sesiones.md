@@ -14,6 +14,14 @@ tokens CSRF nunca se almacenan en texto plano ni aparecen en logs. Los tokens
 de dispositivos Android serán credenciales distintas y no reutilizarán la
 sesión humana del panel.
 
+## Invitaciones
+
+No existe registro público. Un `platform_admin` crea la organización y asigna
+el rol inicial. Para cuentas nuevas, la API genera un token de activación de un
+solo uso, almacena únicamente su hash y lo invalida al aceptarlo o al superar
+72 horas. El enlace se muestra una sola vez al operador; el transporte por
+correo se integrará cuando exista un proveedor configurado.
+
 ## Revocación
 
 Revocar todas las sesiones ante cambio de contraseña, desactivación, sospecha de

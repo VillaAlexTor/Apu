@@ -8,7 +8,7 @@ web
 
 ## Stack
 
-Panel web previsto con Next.js, React, TypeScript, Tailwind CSS, shadcn/ui y Zustand. El backend debe implementarse en Go (Golang), con autenticación mediante JWT y refresh tokens rotativos.
+Panel web con Next.js, React, TypeScript, Tailwind CSS y shadcn/ui. El backend se implementa en Go (Golang), con sesiones opacas almacenadas como hash y cookies seguras para usuarios humanos.
 
 ## Users
 
@@ -37,7 +37,7 @@ APU plantea el control parental como acompañamiento transparente: el menor cono
 
 ## Capabilities and Constraints
 
-- Autenticación con email y contraseña, sesiones cortas, refresh tokens rotativos y MFA para roles administrativos.
+- Autenticación con email y contraseña, sesiones opacas revocables y MFA pendiente antes de habilitar roles administrativos en producción.
 - Autorización y aislamiento aplicados en el backend por `tenant_id`, familia y rol; la interfaz nunca concede permisos por sí sola.
 - Registro, emparejamiento temporal por código o QR, gestión de dispositivos, ubicación, historial, geocercas y auditoría.
 - Los operadores no pueden consultar coordenadas ni historiales familiares sensibles por defecto.

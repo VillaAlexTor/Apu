@@ -16,7 +16,7 @@ seguridad indicada en [modelo-amenazas.md](./modelo-amenazas.md).
 
 ## 2. Alcance incluido
 
-- Registro, inicio de sesión, refresh y revocación de sesión del tutor.
+- Alta administrativa, inicio de sesión compartido y revocación de sesiones opacas.
 - Creación de una familia y asociación del tutor.
 - Generación y confirmación de códigos de emparejamiento.
 - Consentimiento visible antes de activar módulos en Android.

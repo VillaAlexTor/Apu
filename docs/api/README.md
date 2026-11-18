@@ -53,8 +53,15 @@ Los envíos de datos y operaciones que crean comandos aceptan
 | GET | `/subscription` | tenant owner/admin | estado y límites |
 | POST | `/billing/checkout` | tenant owner | inicia suscripción |
 | POST | `/billing/webhook` | proveedor verificado | actualiza pago |
-| GET | `/admin/tenants` | operador | lista operativa sin datos sensibles |
-| POST | `/admin/tenants` | operador | crea tenant y propietario |
+| GET | `/platform/summary` | platform admin | resumen operativo |
+| GET/POST | `/platform/tenants` | platform admin | lista o crea tenants |
+| PATCH | `/platform/tenants/{id}/status` | platform admin + CSRF | cambia estado del tenant |
+| GET | `/platform/users` | platform admin | lista usuarios y membresías |
+| POST | `/platform/invitations` | platform admin + CSRF | invita o asigna usuario |
+| PATCH | `/platform/users/{id}/status` | platform admin + CSRF | suspende o reactiva cuenta |
+| POST | `/platform/users/{id}/sessions/revoke` | platform admin + CSRF | revoca sesiones activas |
+| PATCH | `/platform/tenants/{tenantId}/users/{userId}` | platform admin + CSRF | cambia rol de membresía |
+| GET | `/platform/audit` | platform admin | auditoría operacional |
 | POST | `/pairing/code` | tutor | código temporal |
 | POST | `/pairing/confirm` | dispositivo | dispositivo vinculado |
 | GET | `/devices` | tutor | dispositivos de su familia |

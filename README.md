@@ -281,6 +281,11 @@ Base: `https://<host>/api/v1`
 | `POST` | `/auth/login` | Crea una sesión y resuelve el dashboard por rol |
 | `GET` | `/auth/me` | Devuelve la identidad de la sesión actual |
 | `POST` | `/auth/logout` | Revoca la sesión actual (requiere CSRF) |
+| `POST` | `/auth/activate` | Acepta una invitación de un solo uso |
+| `GET/POST` | `/platform/tenants` | Lista o crea organizaciones (platform admin) |
+| `GET` | `/platform/users` | Lista usuarios, roles y sesiones (platform admin) |
+| `POST` | `/platform/invitations` | Invita o asigna usuarios (platform admin) |
+| `GET` | `/platform/audit` | Consulta auditoría operacional (platform admin) |
 | `POST` | `/pairing/code` | Genera código de emparejamiento (TTL corto) |
 | `POST` | `/pairing/confirm` | La app hija confirma el código y registra su clave pública |
 | `GET`  | `/devices` | Lista dispositivos de la familia |
@@ -379,7 +384,9 @@ go run ./cmd/apu-api
 
 Al iniciar, el backend ejecuta las migraciones pendientes y expone autenticación
 por sesión. No existe registro público: el primer administrador se crea con el
-comando documentado en `docs/docker.md`.
+comando documentado en `docs/docker.md`. El dashboard `/platform` permite
+crear organizaciones, invitar usuarios, asignar roles, controlar estados,
+revocar sesiones y consultar auditoría.
 
 ### 3. Panel (Next.js)
 

@@ -33,6 +33,7 @@ independientes. Nunca se reutilizan secretos entre entornos.
 | `APU_FIELD_ENCRYPTION_KEY` | API | producción | clave de cifrado de campos |
 | `APU_FCM_CREDENTIALS` | API | producción | referencia al secreto FCM |
 | `NEXT_PUBLIC_API_BASE_URL` | dashboard | sí | URL pública de la API |
+| `APU_INTERNAL_API_URL` | dashboard SSR | sí | URL interna de la API accesible desde el servidor Next.js |
 | `APU_ANDROID_API_BASE_URL` | Android | sí | URL de la API para la aplicación |
 
 Los nombres son el contrato inicial; cada aplicación debe incluir un

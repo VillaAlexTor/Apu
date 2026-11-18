@@ -1,14 +1,14 @@
 # Flujos funcionales
 
-## 1. Registro y primer acceso
+## 1. Alta administrativa y primer acceso
 
-1. El tutor envía email y contraseña.
-2. El backend normaliza el email, valida la contraseña y crea la cuenta.
-3. Se crea una familia inicial y se asocia el tutor.
-4. Se emite una sesión de corta duración y refresh token rotativo.
-5. El panel muestra el estado vacío y la opción de añadir dispositivo.
+1. Un administrador autorizado crea o invita al usuario; no existe registro público.
+2. El usuario envía email y contraseña en el login compartido.
+3. El backend normaliza el email y verifica la contraseña con Argon2id.
+4. Se emite una sesión opaca de duración limitada y se guarda únicamente su hash.
+5. El backend resuelve el rol y el panel muestra el dashboard correspondiente.
 
-Errores: email existente, formato inválido, contraseña débil o rate limit.
+Errores: credenciales inválidas, cuenta inactiva o rate limit.
 
 ## 2. Emparejamiento
 

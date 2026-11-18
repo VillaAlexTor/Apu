@@ -15,7 +15,7 @@ por pantallas sin contratos definidos.
 
 ## Fase 1 — Identidad, tenants y roles
 
-- registro, login, refresh y revocación;
+- alta administrativa, login, resolución de rol y revocación de sesión;
 - modelo de tenants, usuarios, roles y relación tutor-familia;
 - middleware de autenticación;
 - auditoría base;

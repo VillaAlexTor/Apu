@@ -13,6 +13,8 @@
 
 * {
   box-sizing: border-box;
+	scrollbar-color: var(--ink) transparent;
+	scrollbar-width: thin;
 }
 
 html,
@@ -32,6 +34,9 @@ button,
 input {
   font: inherit;
 }
+
+input,textarea { caret-color: var(--mineral-red); }
+a { text-underline-offset: .2em; }
 
 button {
   color: inherit;
@@ -457,9 +462,42 @@ button {
 .form-feedback.is-error { color: var(--error); }
 .form-feedback.is-success { color: var(--ink); }
 
+.login-loading { display: grid; gap: .9rem; padding: 1rem 0 2rem; }
+.login-loading span { height: 3.15rem; border: 1px solid rgba(32,59,53,.22); background: rgba(32,59,53,.08); animation: login-pulse 1.2s ease-in-out infinite alternate; }
+.login-loading span:nth-child(2) { animation-delay: .15s; }
+.login-loading span:nth-child(3) { animation-delay: .3s; }
+
+.activation-page,.session-landing { min-height: 100svh; display: grid; place-items: center; padding: 1.5rem; background: var(--paper) url("/assets/apu-topographic-field.webp") center/cover fixed; }
+.activation-sheet,.session-landing > section { width: min(100%,38rem); border: 1px solid rgba(32,59,53,.62); background: rgba(250,245,233,.96); clip-path: polygon(0 0,calc(100% - 1.5rem) 0,100% 1.5rem,100% 100%,1rem 100%,0 calc(100% - 1rem)); }
+.activation-sheet { padding: 2rem clamp(1.4rem,5vw,3rem) 2.5rem; }
+.activation-brand,.session-wordmark { color: var(--ink-deep); font: 700 4rem/.78 var(--condensed); letter-spacing: -.04em; }
+.activation-brand span,.session-wordmark span { display: inline-block; width: 5rem; height: .42rem; margin: 0 0 .72rem 1rem; background: var(--survey-yellow); }
+.activation-form { margin-top: 2.5rem; }
+.activation-form > svg,.activation-complete > svg { width: 1.6rem; color: var(--river-blue); }
+.activation-form h1,.activation-complete h1 { margin: .8rem 0 .4rem; font-size: 1.7rem; letter-spacing: -.03em; }
+.activation-form > p,.activation-complete p { max-width: 52ch; margin: 0 0 1.5rem; color: #52665f; }
+.activation-form label { display: grid; gap: .4rem; margin-top: 1rem; font-size: .82rem; font-weight: 650; }
+.activation-form input { min-height: 3rem; padding: .7rem .8rem; border: 2px solid var(--ink); border-radius: 0; background: #fffdf7; }
+.activation-form label small,.activation-error { color: var(--error); font-size: .75rem; }
+.activation-error { margin-top: 1rem; }
+.activation-form > button,.activation-complete a,.session-landing button { min-height: 3rem; display: inline-flex; align-items: center; justify-content: center; gap: .5rem; margin-top: 1.4rem; padding: .7rem 1rem; border: 1px solid var(--ink); background: var(--ink); color: var(--paper-soft); text-decoration: none; cursor: pointer; }
+.activation-form > button:hover,.activation-complete a:hover,.session-landing button:hover { border-color: var(--survey-yellow); background: var(--survey-yellow); color: var(--ink-deep); }
+.activation-complete { padding-top: 2.5rem; }
+.session-landing > section { padding: 2.2rem clamp(1.4rem,5vw,3rem) 2.6rem; }
+.session-icon { width: 1.8rem; margin-top: 3rem; color: var(--river-blue); }
+.session-landing h1 { margin: .8rem 0 .5rem; font-size: 1.8rem; letter-spacing: -.03em; }
+.session-landing p { max-width: 55ch; color: #52665f; }
+.session-landing dl { margin: 1.5rem 0 0; border-top: 1px solid var(--line); }
+.session-landing dl div { display: grid; grid-template-columns: 7rem 1fr; gap: 1rem; padding: .75rem 0; border-bottom: 1px solid var(--line); }
+.session-landing dt { color: #60706a; font: 500 .7rem/1 var(--condensed); letter-spacing: .08em; text-transform: uppercase; }
+.session-landing dd { margin: 0; overflow-wrap: anywhere; }
+.session-landing button svg { width: 1rem; }
+
 @keyframes survey-spin {
   to { transform: rotate(405deg); }
 }
+
+@keyframes login-pulse { to { background: rgba(32,59,53,.17); } }
 
 @media (max-width: 1120px) {
   .login-page {
@@ -528,4 +566,5 @@ button {
 
   .submit-button,
   .field-control input { transition: none; }
+  .login-loading span { animation: none; }
 }

@@ -22,6 +22,9 @@ pnpm build
 
 El build usa Webpack porque la versión actual de Turbopack presenta un fallo interno al procesar CSS en Windows.
 
-## Backend pendiente
+## Integración con el backend
 
-El formulario valida los datos y representa sus estados de carga y respuesta, pero todavía no crea una sesión. La integración prevista es con la API de Go del proyecto.
+El formulario envía las credenciales a `POST /api/v1/auth/login`, conserva la
+sesión mediante cookies seguras y muestra el destino que corresponde al rol.
+En desarrollo, `NEXT_PUBLIC_API_URL` puede apuntar a
+`http://localhost:8081/api/v1`.

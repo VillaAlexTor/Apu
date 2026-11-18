@@ -37,7 +37,7 @@ ocultar el incidente. Evaluar notificaciones legales antes de comunicar detalles
 
 ### Compromiso de una cuenta
 
-Suspender la cuenta, revocar sesiones y refresh tokens, revisar cambios de rol,
+Suspender la cuenta, revocar todas sus sesiones, revisar cambios de rol,
 dispositivos y accesos auditados. Restablecer credenciales mediante un canal
 verificado y exigir MFA cuando corresponda.
 

@@ -40,6 +40,7 @@ pnpm-debug.log*
 # Go
 backend/bin/
 backend/tmp/
+backend/.gotmp/
 backend/coverage.out
 backend/*.test
 backend/apu-api

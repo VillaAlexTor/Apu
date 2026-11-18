@@ -19,7 +19,7 @@
 - lote duplicado, lote parcialmente inválido y lote fuera de rango;
 - pérdida de red antes y después de confirmar un lote;
 - reloj del dispositivo desfasado;
-- revocación de dispositivo y refresh token;
+- revocación de dispositivo y sesión;
 - vencimiento y purga de ubicación;
 - geocerca con borde, precisión baja y coordenadas inválidas;
 - reconexión del WebSocket sin duplicar eventos;

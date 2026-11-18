@@ -1,7 +1,8 @@
 # Contrato de API
 
-La API pública usa JSON y está versionada bajo `/api/v1`. El contrato formal se
-publicará en `openapi.yaml` antes de implementar los handlers.
+La API usa JSON y está versionada bajo `/api/v1`. El contrato formal se mantiene
+en `openapi.yaml`; actualmente están implementados los endpoints de sesión y
+salud. Los demás recursos de este documento describen el alcance planificado.
 
 ## Convenciones
 
@@ -27,10 +28,12 @@ redactados. Los códigos de error son estables y se documentan en OpenAPI.
 
 ## Autenticación
 
-- `Authorization: Bearer <access_token>`.
-- Access token de vida corta.
-- Refresh token rotativo, revocable y almacenado de forma segura.
-- Las rutas públicas se limitan a registro, login y comienzo de emparejamiento.
+- Los usuarios humanos reciben una cookie de sesión opaca `HttpOnly`; el servidor
+  guarda únicamente su hash.
+- Las operaciones que modifican la sesión requieren `X-CSRF-Token`.
+- La única ruta pública de identidad es el login. No existe registro público.
+- Los dispositivos Android usarán credenciales propias ligadas al dispositivo;
+  ese mecanismo todavía no está implementado.
 - El servidor responde `401` por credencial ausente/inválida y `403` por falta de
   autorización sobre el recurso.
 
@@ -44,9 +47,9 @@ Los envíos de datos y operaciones que crean comandos aceptan
 
 | Método | Ruta | Autorización | Resultado |
 |---|---|---|---|
-| POST | `/auth/register` | pública | crea tutor |
 | POST | `/auth/login` | pública | sesión |
-| GET | `/me` | usuario | perfil y tenants |
+| GET | `/auth/me` | usuario | identidad, rol y destino |
+| POST | `/auth/logout` | usuario + CSRF | revoca la sesión |
 | GET | `/subscription` | tenant owner/admin | estado y límites |
 | POST | `/billing/checkout` | tenant owner | inicia suscripción |
 | POST | `/billing/webhook` | proveedor verificado | actualiza pago |

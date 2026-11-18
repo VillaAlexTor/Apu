@@ -6,10 +6,9 @@ deben reutilizarse en producción.
 
 ## Estado actual
 
-- **Dashboard:** login funcional en Next.js, todavía sin autenticación real.
-- **Backend:** bootstrap Go con `/healthz`, `/readyz` y `/api/v1`; todavía no
-  implementa login ni operaciones de dominio.
-- **PostgreSQL:** disponible para el backend y para las migraciones futuras.
+- **Dashboard:** login conectado a la API Go.
+- **Backend:** sesiones humanas, Argon2id, autorización inicial y auditoría.
+- **PostgreSQL:** migraciones automáticas para identidad, tenants y sesiones.
 - **Android:** aún no existe una aplicación compilable y no forma parte de
   `compose.yaml`.
 
@@ -109,12 +108,37 @@ Desde la raíz del repositorio:
 docker compose up --build
 ```
 
+### Crear el primer administrador
+
+La API no expone registro público. Después de iniciar PostgreSQL, crea el
+primer `platform_admin` con el comando administrativo incluido en la imagen:
+
+```powershell
+$env:APU_BOOTSTRAP_EMAIL = "admin@apu.local"
+$env:APU_BOOTSTRAP_NAME = "Administrador APU"
+$env:APU_BOOTSTRAP_PASSWORD = "cambia-esta-clave-local"
+docker compose run --rm `
+  -e APU_BOOTSTRAP_EMAIL `
+  -e APU_BOOTSTRAP_NAME `
+  -e APU_BOOTSTRAP_PASSWORD `
+  backend /usr/local/bin/apu-admin
+Remove-Item Env:APU_BOOTSTRAP_EMAIL, Env:APU_BOOTSTRAP_NAME, Env:APU_BOOTSTRAP_PASSWORD
+```
+
+La contraseña debe tener al menos 12 caracteres. El comando falla si el email
+ya existe y registra la creación en `audit_log`. No incluyas estas variables en
+`.env` ni en el historial del repositorio.
+
+Después, abre <http://localhost:3001> e inicia sesión. El backend responderá
+con el destino autorizado `/platform`; ese dashboard se construirá en el
+siguiente corte.
+
 Servicios disponibles:
 
 | Servicio | Dirección | Propósito |
 |---|---|---|
 | Dashboard | <http://localhost:3001> | Login web de APU |
-| API | <http://localhost:8081/api/v1> | Bootstrap de la API Go |
+| API | <http://localhost:8081/api/v1> | API Go de identidad y sesiones |
 | Salud API | <http://localhost:8081/healthz> | Proceso disponible |
 | Readiness API | <http://localhost:8081/readyz> | PostgreSQL alcanzable desde la API |
 | PostgreSQL | `localhost:5433` | Base local de desarrollo |

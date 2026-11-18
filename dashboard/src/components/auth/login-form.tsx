@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff, ShieldCheck } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -25,6 +26,7 @@ const destinationLabels: Record<string, string> = {
 };
 
 export function LoginForm() {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [feedback, setFeedback] = useState<Feedback>(null);
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<LoginValues>({
@@ -41,6 +43,8 @@ export function LoginForm() {
         kind: "success",
         text: `Sesión iniciada para ${result.user.displayName}. Destino autorizado: ${destinationLabels[result.redirect] ?? "panel asignado"}.`,
       });
+      router.replace(result.redirect);
+      router.refresh();
     } catch (error) {
       setFeedback({
         kind: "error",

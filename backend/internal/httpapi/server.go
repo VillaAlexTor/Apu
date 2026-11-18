@@ -37,6 +37,7 @@ type Config struct {
 
 type Server struct {
 	store             identityStore
+	platform          platformStore
 	logger            *slog.Logger
 	config            Config
 	limiter           *loginLimiter
@@ -55,6 +56,7 @@ func New(store identityStore, logger *slog.Logger, config Config) (*Server, erro
 	}
 	return &Server{
 		store:             store,
+		platform:          platformStoreFrom(store),
 		logger:            logger,
 		config:            config,
 		limiter:           newLoginLimiter(8, 15*time.Minute),
@@ -76,16 +78,31 @@ func (server *Server) Handler(healthHandler, readinessHandler http.HandlerFunc) 
 		writeJSON(writer, http.StatusOK, map[string]string{
 			"service": "apu-api",
 			"status":  "ready",
-			"version": "0.2.0",
+			"version": "0.3.0",
 		})
 	})
 	router.Route("/api/v1/auth", func(router chi.Router) {
 		router.Post("/login", server.login)
+		router.Post("/activate", server.activateInvitation)
 		router.Group(func(router chi.Router) {
 			router.Use(server.authenticate)
 			router.Get("/me", server.me)
 			router.With(server.requireCSRF).Post("/logout", server.logout)
 		})
+	})
+	router.Route("/api/v1/platform", func(router chi.Router) {
+		router.Use(server.authenticate)
+		router.Use(server.requirePlatformAdmin)
+		router.Get("/summary", server.platformSummary)
+		router.Get("/tenants", server.platformTenants)
+		router.With(server.requireCSRF).Post("/tenants", server.createTenant)
+		router.With(server.requireCSRF).Patch("/tenants/{tenantID}/status", server.setTenantStatus)
+		router.Get("/users", server.platformUsers)
+		router.With(server.requireCSRF).Post("/invitations", server.createInvitation)
+		router.With(server.requireCSRF).Patch("/users/{userID}/status", server.setUserStatus)
+		router.With(server.requireCSRF).Post("/users/{userID}/sessions/revoke", server.revokeUserSessions)
+		router.With(server.requireCSRF).Patch("/tenants/{tenantID}/users/{userID}", server.setMembershipRole)
+		router.Get("/audit", server.platformAudit)
 	})
 	return router
 }
@@ -115,7 +132,9 @@ func (server *Server) login(writer http.ResponseWriter, request *http.Request) {
 	user, err := server.store.FindUserByEmail(request.Context(), email)
 	passwordHash := server.dummyPasswordHash
 	if err == nil {
-		passwordHash = user.PasswordHash
+		if user.PasswordHash != "" {
+			passwordHash = user.PasswordHash
+		}
 	} else if !errors.Is(err, identity.ErrNotFound) {
 		server.internalError(writer, request, err)
 		return
@@ -226,7 +245,7 @@ func (server *Server) cors(next http.Handler) http.Handler {
 			writer.Header().Set("Access-Control-Allow-Origin", origin)
 			writer.Header().Set("Access-Control-Allow-Credentials", "true")
 			writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, X-CSRF-Token")
-			writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+			writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PATCH, OPTIONS")
 			writer.Header().Add("Vary", "Origin")
 		}
 		if request.Method == http.MethodOptions {

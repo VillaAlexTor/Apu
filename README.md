@@ -88,7 +88,7 @@ abajo son estructura prevista mientras el repositorio continúa en planificació
 ┌─────────────────────┐        HTTPS / TLS         ┌──────────────────────────┐
 │  APU Hija (Android) │ ─────────────────────────► │      API Backend (Go)    │
 │  Kotlin             │ ◄───────────────────────── │  REST + WebSocket        │
-│  - Ubicación        │      comandos (FCM)        │  - Auth (JWT + refresh)  │
+│  - Ubicación        │      comandos (FCM)        │  - Sesiones y roles      │
 │  - Uso de apps      │                            │  - Reglas y eventos      │
 │  - Filtro DNS (VPN) │                            │  - Notificaciones        │
 │  - Notificaciones   │                            └────────────┬─────────────┘
@@ -114,7 +114,7 @@ abajo son estructura prevista mientras el repositorio continúa en planificació
 | Capa | Tecnología |
 |---|---|
 | **App hija** | Kotlin, Jetpack Compose, WorkManager, Room (cola local), Retrofit/OkHttp |
-| **Backend** | Go, Gin o Chi, GORM, JWT, WebSocket (`gorilla/websocket`) |
+| **Backend** | Go, Chi, pgx, sesiones opacas, WebSocket (`gorilla/websocket`) |
 | **Base de datos** | PostgreSQL |
 | **Panel web** | Next.js, React, TypeScript, Tailwind CSS, shadcn/ui, Zustand |
 | **Push / comandos** | Firebase Cloud Messaging (FCM) |
@@ -278,8 +278,9 @@ Base: `https://<host>/api/v1`
 
 | Método | Ruta | Descripción |
 |---|---|---|
-| `POST` | `/auth/register` | Registro de tutor |
-| `POST` | `/auth/login` | Login → access + refresh token |
+| `POST` | `/auth/login` | Crea una sesión y resuelve el dashboard por rol |
+| `GET` | `/auth/me` | Devuelve la identidad de la sesión actual |
+| `POST` | `/auth/logout` | Revoca la sesión actual (requiere CSRF) |
 | `POST` | `/pairing/code` | Genera código de emparejamiento (TTL corto) |
 | `POST` | `/pairing/confirm` | La app hija confirma el código y registra su clave pública |
 | `GET`  | `/devices` | Lista dispositivos de la familia |
@@ -325,7 +326,7 @@ Esta es la función más sensible del proyecto y se trata con reglas propias.
 
 **Comunicación**
 - TLS 1.2+ obligatorio, con *certificate pinning* en la app Android.
-- Tokens de acceso de vida corta + refresh tokens rotativos; revocación por dispositivo.
+- Sesiones opacas de vida limitada, revocables y almacenadas únicamente como hash; cookies `HttpOnly`, `Secure` en producción y protección CSRF.
 
 **Autenticación**
 - Contraseñas con **argon2id**. MFA (TOTP) opcional para tutores.
@@ -337,7 +338,7 @@ Esta es la función más sensible del proyecto y se trata con reglas propias.
 - Minimización: solo se recolecta lo que el módulo activo requiere.
 
 **Backend**
-- Validación estricta de entrada, *rate limiting*, consultas parametrizadas (GORM).
+- Validación estricta de entrada, *rate limiting* y consultas parametrizadas con `pgx`.
 - Aislamiento por familia: toda consulta se filtra por `family_id` (previene IDOR).
 - Secretos fuera del repositorio (variables de entorno / gestor de secretos).
 
@@ -353,7 +354,7 @@ Esta es la función más sensible del proyecto y se trata con reglas propias.
 ## 🛠️ Instalación y desarrollo
 
 ### Requisitos
-- Go 1.26+
+- Go 1.26.11+
 - Node.js 24 LTS y pnpm 10
 - PostgreSQL 18
 - Android Studio (Koala o superior), JDK 17
@@ -376,8 +377,9 @@ APU_DATABASE_URL='postgres://apu:apu_local_only@localhost:5433/apu?sslmode=disab
 go run ./cmd/apu-api
 ```
 
-El backend actual es un bootstrap con endpoints de salud; autenticación y
-dominio todavía no están implementados.
+Al iniciar, el backend ejecuta las migraciones pendientes y expone autenticación
+por sesión. No existe registro público: el primer administrador se crea con el
+comando documentado en `docs/docker.md`.
 
 ### 3. Panel (Next.js)
 

@@ -7,7 +7,7 @@ deben reutilizarse en producción.
 ## Estado actual
 
 - **Dashboard:** login conectado a la API Go.
-- **Backend:** sesiones humanas, Argon2id, autorización inicial y auditoría.
+- **Backend:** sesiones humanas, Argon2id, recuperación, MFA TOTP, autorización y auditoría.
 - **PostgreSQL:** migraciones automáticas para identidad, tenants y sesiones.
 - **Android:** aún no existe una aplicación compilable y no forma parte de
   `compose.yaml`.
@@ -44,7 +44,8 @@ repositorio ni uses `apu_local_only` fuera de tu equipo.
 
 ## 1. Encender solo el frontend
 
-El login actual no consume todavía la API, por lo que puede ejecutarse solo:
+El frontend puede ejecutarse solo para revisar la composición, pero login,
+recuperación y MFA necesitan la API:
 
 ```bash
 docker compose up --build dashboard
@@ -125,12 +126,13 @@ docker compose run --rm `
 Remove-Item Env:APU_BOOTSTRAP_EMAIL, Env:APU_BOOTSTRAP_NAME, Env:APU_BOOTSTRAP_PASSWORD
 ```
 
-La contraseña debe tener al menos 12 caracteres. El comando falla si el email
+La contraseña debe tener al menos 15 caracteres. El comando falla si el email
 ya existe y registra la creación en `audit_log`. No incluyas estas variables en
 `.env` ni en el historial del repositorio.
 
-Después, abre <http://localhost:3001> e inicia sesión. El backend responderá
-con el destino autorizado `/platform`. Desde ese dashboard puedes crear la
+Después, abre <http://localhost:3001> e inicia sesión. El primer acceso obliga
+a registrar TOTP y guardar los códigos de recuperación; luego el backend
+responderá con el destino autorizado `/platform`. Desde ese dashboard puedes crear la
 primera organización, invitar a su propietario y copiar el enlace de activación
 de un solo uso.
 
@@ -216,3 +218,11 @@ variables `NEXT_PUBLIC_*` se incorporan durante el build:
 docker compose build --no-cache dashboard
 docker compose up -d dashboard
 ```
+
+## Recuperación por correo
+
+En local, Compose expone el enlace de prueba dentro de la pantalla de
+recuperación. En producción configura `APU_SMTP_ADDRESS`, `APU_SMTP_FROM` y las
+credenciales del proveedor; la API exige STARTTLS y rechaza
+`APU_EXPOSE_DEVELOPMENT_TOKENS=true`. Genera una clave independiente de 32 bytes
+para `APU_MFA_ENCRYPTION_KEY` y almacénala en el gestor de secretos.

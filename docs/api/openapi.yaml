@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: APU API
-  version: 0.3.0
+  version: 0.4.0
   description: Contrato versionado de la API de APU.
   license:
     name: Uso privado; todos los derechos reservados
@@ -32,6 +32,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/LoginResponse'
+        '202':
+          description: La contraseña fue validada y se requiere MFA
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MFAChallengeResponse'
         '400':
           $ref: '#/components/responses/InvalidRequest'
         '401':
@@ -80,6 +86,105 @@ paths:
           description: Cuenta activada
         '400':
           $ref: '#/components/responses/InvalidRequest'
+  /auth/password/reset/request:
+    post:
+      operationId: requestPasswordReset
+      summary: Solicitar recuperación sin revelar si la cuenta existe
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordResetRequest'
+      responses:
+        '202':
+          description: Solicitud aceptada con respuesta uniforme
+        '429':
+          description: Demasiadas solicitudes de recuperación
+  /auth/password/reset/confirm:
+    post:
+      operationId: confirmPasswordReset
+      summary: Restablecer contraseña con un token de un solo uso
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordResetConfirmRequest'
+      responses:
+        '200':
+          description: Contraseña actualizada y sesiones revocadas
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+  /auth/password/change:
+    post:
+      operationId: changePassword
+      summary: Cambiar contraseña y revocar todas las sesiones
+      security:
+        - sessionCookie: []
+      parameters:
+        - $ref: '#/components/parameters/CSRFToken'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordChangeRequest'
+      responses:
+        '204':
+          description: Contraseña actualizada y sesiones revocadas
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /auth/mfa/enroll:
+    post:
+      operationId: startMFAEnrollment
+      summary: Preparar TOTP para una cuenta administrativa
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MFAChallengeRequest'
+      responses:
+        '200':
+          description: Secreto TOTP y URI de aprovisionamiento
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /auth/mfa/enroll/confirm:
+    post:
+      operationId: confirmMFAEnrollment
+      summary: Confirmar TOTP y emitir códigos de recuperación
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MFAVerificationRequest'
+      responses:
+        '200':
+          description: MFA activado y sesión administrativa creada
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /auth/mfa/verify:
+    post:
+      operationId: verifyMFA
+      summary: Verificar TOTP o código de recuperación
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MFAVerificationRequest'
+      responses:
+        '200':
+          description: Segundo factor verificado y sesión creada
+        '401':
+          $ref: '#/components/responses/Unauthorized'
   /platform/summary:
     get:
       operationId: getPlatformSummary
@@ -355,8 +460,76 @@ components:
         password:
           type: string
           format: password
-          minLength: 12
+          minLength: 15
           maxLength: 1024
+    PasswordResetRequest:
+      type: object
+      additionalProperties: false
+      required: [email]
+      properties:
+        email:
+          type: string
+          format: email
+          maxLength: 320
+    PasswordResetConfirmRequest:
+      type: object
+      additionalProperties: false
+      required: [token, newPassword]
+      properties:
+        token:
+          type: string
+          minLength: 32
+        newPassword:
+          type: string
+          format: password
+          minLength: 15
+          maxLength: 1024
+    PasswordChangeRequest:
+      type: object
+      additionalProperties: false
+      required: [currentPassword, newPassword]
+      properties:
+        currentPassword:
+          type: string
+          format: password
+          maxLength: 1024
+        newPassword:
+          type: string
+          format: password
+          minLength: 15
+          maxLength: 1024
+    MFAChallengeRequest:
+      type: object
+      additionalProperties: false
+      required: [challenge]
+      properties:
+        challenge:
+          type: string
+          minLength: 32
+    MFAVerificationRequest:
+      type: object
+      additionalProperties: false
+      required: [challenge, code]
+      properties:
+        challenge:
+          type: string
+          minLength: 32
+        code:
+          type: string
+          minLength: 6
+          maxLength: 32
+    MFAChallengeResponse:
+      type: object
+      required: [mfaRequired, mode, challenge]
+      properties:
+        mfaRequired:
+          type: boolean
+          enum: [true]
+        mode:
+          type: string
+          enum: [enroll, verify]
+        challenge:
+          type: string
     CreateTenantRequest:
       type: object
       additionalProperties: false
@@ -469,3 +642,8 @@ components:
           enum: [/platform, /admin, /familia, /acceso-pendiente]
         csrfToken:
           type: string
+        recoveryCodes:
+          type: array
+          description: Solo se entrega una vez al activar MFA.
+          items:
+            type: string

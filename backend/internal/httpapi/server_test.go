@@ -51,8 +51,9 @@ func TestLogoutRejectsInvalidCSRF(t *testing.T) {
 	csrfHash := sha256.Sum256([]byte("correct-csrf-token"))
 	platformRole := "platform_admin"
 	store := &stubIdentityStore{session: identity.Session{
-		ID:       "session-id",
-		CSRFHash: csrfHash[:],
+		ID:          "session-id",
+		CSRFHash:    csrfHash[:],
+		MFAVerified: true,
 		User: identity.User{
 			ID:           "user-id",
 			Email:        "admin@apu.local",
@@ -161,6 +162,82 @@ func TestPlatformRoutesRejectNonAdministrator(t *testing.T) {
 	if response.Code != http.StatusForbidden {
 		t.Fatalf("expected status %d, got %d", http.StatusForbidden, response.Code)
 	}
+}
+
+func TestPlatformPermissionMatrix(t *testing.T) {
+	platformAdmin := "platform_admin"
+	supportAgent := "support_agent"
+	tests := []struct {
+		name     string
+		session  identity.Session
+		expected int
+	}{
+		{name: "platform admin with MFA", session: identity.Session{User: identity.User{PlatformRole: &platformAdmin}, MFAVerified: true}, expected: http.StatusNoContent},
+		{name: "platform admin without MFA", session: identity.Session{User: identity.User{PlatformRole: &platformAdmin}}, expected: http.StatusForbidden},
+		{name: "support agent", session: identity.Session{User: identity.User{PlatformRole: &supportAgent}, MFAVerified: true}, expected: http.StatusForbidden},
+		{name: "tenant owner", session: identity.Session{Memberships: []identity.Membership{{Role: "tenant_owner"}}, MFAVerified: true}, expected: http.StatusForbidden},
+		{name: "tenant admin", session: identity.Session{Memberships: []identity.Membership{{Role: "tenant_admin"}}, MFAVerified: true}, expected: http.StatusForbidden},
+		{name: "guardian", session: identity.Session{Memberships: []identity.Membership{{Role: "guardian"}}}, expected: http.StatusForbidden},
+	}
+	server := &Server{platform: &stubPlatformStore{}}
+	next := http.HandlerFunc(func(writer http.ResponseWriter, _ *http.Request) { writer.WriteHeader(http.StatusNoContent) })
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			request := httptest.NewRequest(http.MethodGet, "/api/v1/platform/summary", nil)
+			request = request.WithContext(context.WithValue(request.Context(), sessionContextKey, test.session))
+			response := httptest.NewRecorder()
+			server.requirePlatformAdmin(next).ServeHTTP(response, request)
+			if response.Code != test.expected {
+				t.Fatalf("expected status %d, got %d", test.expected, response.Code)
+			}
+		})
+	}
+}
+
+func TestPrivilegedTenantRolesRequireMFA(t *testing.T) {
+	if !requiresMFA(identity.User{}, []identity.Membership{{Role: "tenant_owner"}}) {
+		t.Fatal("tenant owners must require MFA")
+	}
+	if !requiresMFA(identity.User{}, []identity.Membership{{Role: "tenant_admin"}}) {
+		t.Fatal("tenant administrators must require MFA")
+	}
+	if requiresMFA(identity.User{}, []identity.Membership{{Role: "guardian"}}) {
+		t.Fatal("guardians must not require MFA")
+	}
+}
+
+type stubPlatformStore struct{}
+
+func (*stubPlatformStore) PlatformSummary(context.Context) (identity.PlatformSummary, error) {
+	return identity.PlatformSummary{}, nil
+}
+func (*stubPlatformStore) PlatformTenants(context.Context) ([]identity.TenantRecord, error) {
+	return nil, nil
+}
+func (*stubPlatformStore) CreateTenant(context.Context, identity.User, string, string) (identity.TenantRecord, error) {
+	return identity.TenantRecord{}, nil
+}
+func (*stubPlatformStore) SetTenantStatus(context.Context, identity.User, string, string) error {
+	return nil
+}
+func (*stubPlatformStore) PlatformUsers(context.Context) ([]identity.PlatformUser, error) {
+	return nil, nil
+}
+func (*stubPlatformStore) CreateInvitation(context.Context, identity.User, string, string, string, string, []byte, time.Time) (identity.InvitationResult, error) {
+	return identity.InvitationResult{}, nil
+}
+func (*stubPlatformStore) ActivateInvitation(context.Context, string, string) error { return nil }
+func (*stubPlatformStore) SetUserStatus(context.Context, identity.User, string, string) error {
+	return nil
+}
+func (*stubPlatformStore) RevokeUserSessions(context.Context, identity.User, string) (int64, error) {
+	return 0, nil
+}
+func (*stubPlatformStore) SetMembershipRole(context.Context, identity.User, string, string, string) error {
+	return nil
+}
+func (*stubPlatformStore) PlatformAudit(context.Context, int) ([]identity.AuditEvent, error) {
+	return nil, nil
 }
 
 func testHandler(t *testing.T, store identityStore) http.Handler {

@@ -28,3 +28,30 @@ func TestLoadConfigRequiresDatabaseURL(t *testing.T) {
 		t.Fatal("expected missing database URL to fail")
 	}
 }
+
+func TestProductionRequiresMFAKey(t *testing.T) {
+	t.Setenv("APU_ENV", "production")
+	t.Setenv("APU_DATABASE_URL", "postgres://apu:local@localhost:5433/apu")
+	t.Setenv("APU_COOKIE_SECURE", "true")
+	t.Setenv("APU_ALLOWED_ORIGIN", "https://panel.apu.example")
+	t.Setenv("APU_SMTP_ADDRESS", "smtp.example:587")
+	t.Setenv("APU_SMTP_FROM", "APU <no-reply@apu.example>")
+	_ = os.Unsetenv("APU_MFA_ENCRYPTION_KEY")
+	if _, err := loadConfig(); err == nil {
+		t.Fatal("expected production without MFA encryption key to fail")
+	}
+}
+
+func TestProductionRejectsExposedDevelopmentTokens(t *testing.T) {
+	t.Setenv("APU_ENV", "production")
+	t.Setenv("APU_DATABASE_URL", "postgres://apu:local@localhost:5433/apu")
+	t.Setenv("APU_COOKIE_SECURE", "true")
+	t.Setenv("APU_ALLOWED_ORIGIN", "https://panel.apu.example")
+	t.Setenv("APU_MFA_ENCRYPTION_KEY", "AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE")
+	t.Setenv("APU_EXPOSE_DEVELOPMENT_TOKENS", "true")
+	t.Setenv("APU_SMTP_ADDRESS", "smtp.example:587")
+	t.Setenv("APU_SMTP_FROM", "APU <no-reply@apu.example>")
+	if _, err := loadConfig(); err == nil {
+		t.Fatal("expected production to reject exposed development tokens")
+	}
+}

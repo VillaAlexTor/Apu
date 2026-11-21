@@ -9,7 +9,7 @@ import { z } from "zod";
 import { activateInvitation, APIError } from "@/lib/api";
 
 const schema = z.object({
-  password: z.string().min(12, "Usa al menos 12 caracteres.").max(1024, "La contraseña es demasiado larga."),
+  password: z.string().min(15, "Usa al menos 15 caracteres.").max(1024, "La contraseña es demasiado larga."),
   confirmation: z.string(),
 }).refine((values) => values.password === values.confirmation, { path: ["confirmation"], message: "Las contraseñas no coinciden." });
 

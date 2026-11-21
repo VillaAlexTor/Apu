@@ -4,9 +4,11 @@
 
 1. El usuario inicia sesión con email y contraseña.
 2. La API valida credenciales y estado de la cuenta.
-3. La API genera un identificador de sesión opaco de alta entropía.
-4. PostgreSQL almacena únicamente el hash SHA-256 del identificador.
-5. El navegador recibe la sesión en una cookie `HttpOnly`; cada petición vuelve
+3. Si el usuario es `platform_admin`, `tenant_owner` o `tenant_admin`, la API
+   exige TOTP o un código de recuperación antes de crear la sesión.
+4. La API genera un identificador de sesión opaco de alta entropía.
+5. PostgreSQL almacena únicamente el hash SHA-256 del identificador.
+6. El navegador recibe la sesión en una cookie `HttpOnly`; cada petición vuelve
    a comprobar expiración, revocación y estado del usuario.
 
 Las contraseñas se almacenan con Argon2id. Los identificadores de sesión y
@@ -31,11 +33,21 @@ desvincularlo.
 
 ## MFA y recuperación
 
-MFA TOTP será obligatorio para roles administrativos y recomendado para
-`tenant_owner`. Todavía no está implementado, por lo que esta versión no debe
-habilitar cuentas administrativas en producción. La recuperación requerirá un
-flujo con token de un solo uso, expiración corta, respuesta indistinguible para
-emails inexistentes y auditoría.
+MFA TOTP es obligatorio para `platform_admin`, `tenant_owner` y `tenant_admin`.
+El secreto TOTP se cifra con AES-256-GCM, cada paso TOTP solo puede utilizarse
+una vez y el alta entrega diez códigos de recuperación de un solo uso. Los
+retos de autenticación vencen después de cinco minutos y se bloquean al octavo
+intento fallido.
+
+La recuperación usa un token aleatorio de un solo uso, almacena únicamente su
+hash, vence después de 30 minutos y responde de manera indistinguible exista o
+no la cuenta. Al restablecer o cambiar la contraseña se revocan todas las
+sesiones. Producción exige SMTP con STARTTLS; el token local solo puede
+exponerse cuando `APU_EXPOSE_DEVELOPMENT_TOKENS=true` fuera de producción.
+
+Las contraseñas nuevas requieren al menos 15 caracteres, aceptan frases y
+Unicode, y se rechazan si pertenecen a la lista local de valores comunes. No se
+fuerzan cambios periódicos sin evidencia de compromiso.
 
 ## Controles
 

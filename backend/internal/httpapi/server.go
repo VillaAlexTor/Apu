@@ -2,10 +2,12 @@ package httpapi
 
 import (
 	"context"
+	"crypto/rand"
 	"crypto/sha256"
 	"crypto/subtle"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"log/slog"
 	"net"
@@ -14,6 +16,7 @@ import (
 	"time"
 
 	"github.com/VillaAlexTor/Apu/backend/internal/identity"
+	"github.com/VillaAlexTor/Apu/backend/internal/mfa"
 	"github.com/VillaAlexTor/Apu/backend/internal/password"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -30,18 +33,25 @@ type identityStore interface {
 }
 
 type Config struct {
-	AllowedOrigin string
-	CookieSecure  bool
-	SessionTTL    time.Duration
+	AllowedOrigin           string
+	CookieSecure            bool
+	SessionTTL              time.Duration
+	MFAEncryptionKey        []byte
+	PasswordResetBaseURL    string
+	ResetMailer             ResetMailer
+	ExposeDevelopmentTokens bool
 }
 
 type Server struct {
 	store             identityStore
 	platform          platformStore
+	security          securityStore
 	logger            *slog.Logger
 	config            Config
 	limiter           *loginLimiter
+	resetLimiter      *loginLimiter
 	dummyPasswordHash string
+	mfaEncryptor      *mfa.Encryptor
 	now               func() time.Time
 }
 
@@ -54,13 +64,27 @@ func New(store identityStore, logger *slog.Logger, config Config) (*Server, erro
 	if err != nil {
 		return nil, err
 	}
+	key := config.MFAEncryptionKey
+	if len(key) == 0 {
+		key = make([]byte, 32)
+		if _, err := rand.Read(key); err != nil {
+			return nil, fmt.Errorf("generate ephemeral MFA key: %w", err)
+		}
+	}
+	encryptor, err := mfa.NewEncryptor(key)
+	if err != nil {
+		return nil, err
+	}
 	return &Server{
 		store:             store,
 		platform:          platformStoreFrom(store),
+		security:          securityStoreFrom(store),
 		logger:            logger,
 		config:            config,
 		limiter:           newLoginLimiter(8, 15*time.Minute),
+		resetLimiter:      newLoginLimiter(5, 15*time.Minute),
 		dummyPasswordHash: dummyHash,
+		mfaEncryptor:      encryptor,
 		now:               time.Now,
 	}, nil
 }
@@ -78,16 +102,22 @@ func (server *Server) Handler(healthHandler, readinessHandler http.HandlerFunc) 
 		writeJSON(writer, http.StatusOK, map[string]string{
 			"service": "apu-api",
 			"status":  "ready",
-			"version": "0.3.0",
+			"version": "0.4.0",
 		})
 	})
 	router.Route("/api/v1/auth", func(router chi.Router) {
 		router.Post("/login", server.login)
 		router.Post("/activate", server.activateInvitation)
+		router.Post("/password/reset/request", server.requestPasswordReset)
+		router.Post("/password/reset/confirm", server.confirmPasswordReset)
+		router.Post("/mfa/enroll", server.startMFAEnrollment)
+		router.Post("/mfa/enroll/confirm", server.confirmMFAEnrollment)
+		router.Post("/mfa/verify", server.verifyMFA)
 		router.Group(func(router chi.Router) {
 			router.Use(server.authenticate)
 			router.Get("/me", server.me)
 			router.With(server.requireCSRF).Post("/logout", server.logout)
+			router.With(server.requireCSRF).Post("/password/change", server.changePassword)
 		})
 	})
 	router.Route("/api/v1/platform", func(router chi.Router) {
@@ -154,31 +184,30 @@ func (server *Server) login(writer http.ResponseWriter, request *http.Request) {
 		server.internalError(writer, request, err)
 		return
 	}
-	sessionToken, tokenHash, err := identity.NewSecret()
-	if err != nil {
-		server.internalError(writer, request, err)
+	if requiresMFA(user, memberships) {
+		if server.security == nil {
+			server.internalError(writer, request, errors.New("security store is unavailable"))
+			return
+		}
+		purpose := "mfa_enroll"
+		mode := "enroll"
+		if user.MFAEnabled {
+			purpose = "mfa_verify"
+			mode = "verify"
+		}
+		challenge, challengeHash, secretErr := identity.NewSecret()
+		if secretErr != nil {
+			server.internalError(writer, request, secretErr)
+			return
+		}
+		if err := server.security.CreateAuthChallenge(request.Context(), user.ID, purpose, challengeHash, server.now().UTC().Add(5*time.Minute)); err != nil {
+			server.internalError(writer, request, err)
+			return
+		}
+		writeJSON(writer, http.StatusAccepted, map[string]any{"mfaRequired": true, "mode": mode, "challenge": challenge})
 		return
 	}
-	csrfToken, csrfHash, err := identity.NewSecret()
-	if err != nil {
-		server.internalError(writer, request, err)
-		return
-	}
-	expiresAt := server.now().UTC().Add(server.config.SessionTTL)
-	session, err := server.store.CreateSession(request.Context(), user, tokenHash, csrfHash, expiresAt)
-	if err != nil {
-		server.internalError(writer, request, err)
-		return
-	}
-	session.Memberships = memberships
-	server.setAuthCookies(writer, sessionToken, csrfToken, expiresAt)
-	server.limiter.reset(clientKey)
-
-	writeJSON(writer, http.StatusOK, map[string]any{
-		"user":      session.PublicUser(),
-		"redirect":  identity.Destination(user, memberships),
-		"csrfToken": csrfToken,
-	})
+	server.createSessionResponse(writer, request, user, memberships, false, nil)
 }
 
 func (server *Server) me(writer http.ResponseWriter, request *http.Request) {
@@ -214,6 +243,11 @@ func (server *Server) authenticate(next http.Handler) http.Handler {
 			}
 			server.clearAuthCookies(writer)
 			writeError(writer, http.StatusUnauthorized, "unauthorized", "La sesión no es válida o ha expirado.")
+			return
+		}
+		if requiresMFA(session.User, session.Memberships) && !session.MFAVerified {
+			server.clearAuthCookies(writer)
+			writeError(writer, http.StatusUnauthorized, "mfa_required", "Debes verificar el segundo factor para continuar.")
 			return
 		}
 		ctx := context.WithValue(request.Context(), sessionContextKey, session)

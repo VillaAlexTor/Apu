@@ -282,6 +282,12 @@ Base: `https://<host>/api/v1`
 | `GET` | `/auth/me` | Devuelve la identidad de la sesión actual |
 | `POST` | `/auth/logout` | Revoca la sesión actual (requiere CSRF) |
 | `POST` | `/auth/activate` | Acepta una invitación de un solo uso |
+| `POST` | `/auth/password/reset/request` | Solicita recuperación con respuesta uniforme |
+| `POST` | `/auth/password/reset/confirm` | Restablece la contraseña y revoca sesiones |
+| `POST` | `/auth/password/change` | Reautentica, cambia la contraseña y revoca sesiones |
+| `POST` | `/auth/mfa/enroll` | Prepara el alta TOTP tras validar la contraseña |
+| `POST` | `/auth/mfa/enroll/confirm` | Activa TOTP y entrega códigos de recuperación |
+| `POST` | `/auth/mfa/verify` | Verifica TOTP o un código de recuperación |
 | `GET/POST` | `/platform/tenants` | Lista o crea organizaciones (platform admin) |
 | `GET` | `/platform/users` | Lista usuarios, roles y sesiones (platform admin) |
 | `POST` | `/platform/invitations` | Invita o asigna usuarios (platform admin) |
@@ -334,7 +340,11 @@ Esta es la función más sensible del proyecto y se trata con reglas propias.
 - Sesiones opacas de vida limitada, revocables y almacenadas únicamente como hash; cookies `HttpOnly`, `Secure` en producción y protección CSRF.
 
 **Autenticación**
-- Contraseñas con **argon2id**. MFA (TOTP) opcional para tutores.
+- Contraseñas con **Argon2id**, mínimo de 15 caracteres y rechazo de claves
+  conocidas. MFA TOTP obligatorio para `platform_admin`, `tenant_owner` y
+  `tenant_admin`; `guardian` no lo requiere en este corte.
+- Recuperación con respuesta uniforme y token de un solo uso; restablecer o
+  cambiar la contraseña revoca todas las sesiones.
 - Claves de dispositivo en **Android Keystore**; las peticiones de la app hija se firman.
 
 **Datos**
@@ -474,9 +484,10 @@ Para reportar vulnerabilidades, ver `SECURITY.md`.
 
 ## Estado del proyecto
 
-APU se encuentra actualmente en fase de diseño y planificación técnica.
-La arquitectura, el modelo de datos y la API descritos aquí representan el
-diseño previsto; todavía no constituyen una implementación funcional.
+APU cuenta con una base funcional del dashboard y la API de identidad: sesiones
+opacas, administración multi-tenant, recuperación y cambio de contraseña, MFA
+TOTP obligatorio para roles administrativos y auditoría. La aplicación Android
+y los módulos familiares todavía se encuentran en planificación.
 
 No debe utilizarse con datos reales de menores.
 

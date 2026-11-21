@@ -24,6 +24,12 @@ sesiones y consultar los últimos registros de auditoría. Las acciones se
 autorizan nuevamente en el backend y requieren protección CSRF. Suspender o
 desactivar una cuenta revoca sus sesiones activas.
 
+El acceso de `platform_admin` exige MFA TOTP antes de emitir la sesión. La misma
+regla se aplica a propietarios y administradores de tenant; los tutores no
+reciben permisos administrativos por completar MFA. La matriz de autorización
+se prueba en el backend y `/platform` además rechaza sesiones administrativas
+que no hayan verificado el segundo factor.
+
 Facturación, salud de workers, FCM, tickets y acciones excepcionales permanecen
 fuera de este corte.
 

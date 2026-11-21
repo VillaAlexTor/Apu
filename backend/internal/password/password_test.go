@@ -31,6 +31,19 @@ func TestHashRejectsShortPassword(t *testing.T) {
 	}
 }
 
+func TestHashRejectsCommonPassword(t *testing.T) {
+	if _, err := Hash("password1234567"); err == nil {
+		t.Fatal("expected common password to fail")
+	}
+}
+
+func TestHashCountsUnicodeCharacters(t *testing.T) {
+	value := "montaña-segura-🏔️"
+	if _, err := Hash(value); err != nil {
+		t.Fatalf("expected unicode password to be accepted: %v", err)
+	}
+}
+
 func TestVerifyRejectsMalformedHash(t *testing.T) {
 	if _, err := Verify("password", "not-a-hash"); err == nil {
 		t.Fatal("expected malformed hash to fail")

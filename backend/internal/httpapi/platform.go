@@ -42,6 +42,10 @@ func (server *Server) requirePlatformAdmin(next http.Handler) http.Handler {
 			writeError(writer, http.StatusForbidden, "forbidden", "No tienes permisos para operar la plataforma.")
 			return
 		}
+		if !session.MFAVerified {
+			writeError(writer, http.StatusForbidden, "mfa_required", "Debes verificar el segundo factor para operar la plataforma.")
+			return
+		}
 		if server.platform == nil {
 			server.internalError(writer, request, errors.New("platform store is unavailable"))
 			return
@@ -65,7 +69,7 @@ func (server *Server) activateInvitation(writer http.ResponseWriter, request *ht
 	}
 	passwordHash, err := password.Hash(input.Password)
 	if err != nil {
-		writeError(writer, http.StatusBadRequest, "weak_password", "La contraseña debe tener entre 12 y 1024 caracteres.")
+		server.writePasswordPolicyError(writer, err)
 		return
 	}
 	if err := server.platform.ActivateInvitation(request.Context(), input.Token, passwordHash); err != nil {

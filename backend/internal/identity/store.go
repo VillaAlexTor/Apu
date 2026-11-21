@@ -30,7 +30,8 @@ func NewStore(pool *pgxpool.Pool) *Store {
 func (store *Store) FindUserByEmail(ctx context.Context, email string) (User, error) {
 	var user User
 	err := store.pool.QueryRow(ctx, `
-		SELECT id::text, email::text, display_name, COALESCE(password_hash, ''), status, platform_role
+		SELECT id::text, email::text, display_name, COALESCE(password_hash, ''), status, platform_role,
+		       (mfa_enabled_at IS NOT NULL)
 		FROM users
 		WHERE email = $1
 	`, email).Scan(
@@ -40,6 +41,7 @@ func (store *Store) FindUserByEmail(ctx context.Context, email string) (User, er
 		&user.PasswordHash,
 		&user.Status,
 		&user.PlatformRole,
+		&user.MFAEnabled,
 	)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return User{}, ErrNotFound
@@ -79,6 +81,27 @@ func (store *Store) CreateSession(
 	csrfHash []byte,
 	expiresAt time.Time,
 ) (Session, error) {
+	return store.createSession(ctx, user, tokenHash, csrfHash, expiresAt, false)
+}
+
+func (store *Store) CreateMFASession(
+	ctx context.Context,
+	user User,
+	tokenHash []byte,
+	csrfHash []byte,
+	expiresAt time.Time,
+) (Session, error) {
+	return store.createSession(ctx, user, tokenHash, csrfHash, expiresAt, true)
+}
+
+func (store *Store) createSession(
+	ctx context.Context,
+	user User,
+	tokenHash []byte,
+	csrfHash []byte,
+	expiresAt time.Time,
+	mfaVerified bool,
+) (Session, error) {
 	tx, err := store.pool.Begin(ctx)
 	if err != nil {
 		return Session{}, fmt.Errorf("begin session transaction: %w", err)
@@ -89,11 +112,12 @@ func (store *Store) CreateSession(
 	session.User = user
 	session.CSRFHash = csrfHash
 	session.ExpiresAt = expiresAt
+	session.MFAVerified = mfaVerified
 	err = tx.QueryRow(ctx, `
-		INSERT INTO sessions (user_id, token_hash, csrf_hash, expires_at)
-		VALUES ($1, $2, $3, $4)
+		INSERT INTO sessions (user_id, token_hash, csrf_hash, expires_at, mfa_verified_at)
+		VALUES ($1, $2, $3, $4, CASE WHEN $5 THEN now() ELSE NULL END)
 		RETURNING id::text
-	`, user.ID, tokenHash, csrfHash, expiresAt).Scan(&session.ID)
+	`, user.ID, tokenHash, csrfHash, expiresAt, mfaVerified).Scan(&session.ID)
 	if err != nil {
 		return Session{}, fmt.Errorf("insert session: %w", err)
 	}
@@ -131,7 +155,9 @@ func (store *Store) SessionByToken(ctx context.Context, token string) (Session, 
 		          users.display_name,
 		          COALESCE(users.password_hash, ''),
 		          users.status,
-		          users.platform_role
+		          users.platform_role,
+		          (users.mfa_enabled_at IS NOT NULL),
+		          (sessions.mfa_verified_at IS NOT NULL)
 	`, tokenHash[:]).Scan(
 		&session.ID,
 		&session.CSRFHash,
@@ -142,6 +168,8 @@ func (store *Store) SessionByToken(ctx context.Context, token string) (Session, 
 		&session.User.PasswordHash,
 		&session.User.Status,
 		&session.User.PlatformRole,
+		&session.User.MFAEnabled,
+		&session.MFAVerified,
 	)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return Session{}, ErrNotFound
@@ -194,7 +222,8 @@ func (store *Store) CreatePlatformAdmin(ctx context.Context, email, displayName,
 	err = tx.QueryRow(ctx, `
 		INSERT INTO users (email, display_name, password_hash, platform_role)
 		VALUES ($1, $2, $3, 'platform_admin')
-		RETURNING id::text, email::text, display_name, password_hash, status, platform_role
+		RETURNING id::text, email::text, display_name, password_hash, status, platform_role,
+		          (mfa_enabled_at IS NOT NULL)
 	`, email, displayName, passwordHash).Scan(
 		&user.ID,
 		&user.Email,
@@ -202,6 +231,7 @@ func (store *Store) CreatePlatformAdmin(ctx context.Context, email, displayName,
 		&user.PasswordHash,
 		&user.Status,
 		&user.PlatformRole,
+		&user.MFAEnabled,
 	)
 	if err != nil {
 		var postgresError *pgconn.PgError

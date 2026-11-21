@@ -9,6 +9,7 @@ type User struct {
 	PasswordHash string
 	Status       string
 	PlatformRole *string
+	MFAEnabled   bool
 }
 
 type Membership struct {
@@ -23,6 +24,7 @@ type Session struct {
 	CSRFHash    []byte
 	ExpiresAt   time.Time
 	Memberships []Membership
+	MFAVerified bool
 }
 
 type PublicUser struct {
@@ -44,7 +46,7 @@ func (session Session) PublicUser() PublicUser {
 }
 
 func Destination(user User, memberships []Membership) string {
-	if user.PlatformRole != nil {
+	if user.PlatformRole != nil && *user.PlatformRole == "platform_admin" {
 		return "/platform"
 	}
 	for _, membership := range memberships {

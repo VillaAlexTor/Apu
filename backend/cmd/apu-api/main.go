@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"net/url"
 	"os"
 	"os/signal"
 	"strconv"
@@ -16,10 +17,14 @@ import (
 	"github.com/VillaAlexTor/Apu/backend/internal/database"
 	"github.com/VillaAlexTor/Apu/backend/internal/httpapi"
 	"github.com/VillaAlexTor/Apu/backend/internal/identity"
+	"github.com/VillaAlexTor/Apu/backend/internal/mailer"
+	"github.com/VillaAlexTor/Apu/backend/internal/mfa"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-const version = "0.3.0"
+const version = "0.4.0"
+
+const localMFAEncryptionKey = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
 
 type config struct {
 	environment   string
@@ -28,6 +33,10 @@ type config struct {
 	allowedOrigin string
 	cookieSecure  bool
 	sessionTTL    time.Duration
+	mfaKey        []byte
+	resetBaseURL  string
+	resetMailer   httpapi.ResetMailer
+	exposeTokens  bool
 }
 
 func main() {
@@ -54,9 +63,13 @@ func run(logger *slog.Logger) error {
 	defer pool.Close()
 
 	api, err := httpapi.New(identity.NewStore(pool), logger, httpapi.Config{
-		AllowedOrigin: cfg.allowedOrigin,
-		CookieSecure:  cfg.cookieSecure,
-		SessionTTL:    cfg.sessionTTL,
+		AllowedOrigin:           cfg.allowedOrigin,
+		CookieSecure:            cfg.cookieSecure,
+		SessionTTL:              cfg.sessionTTL,
+		MFAEncryptionKey:        cfg.mfaKey,
+		PasswordResetBaseURL:    cfg.resetBaseURL,
+		ResetMailer:             cfg.resetMailer,
+		ExposeDevelopmentTokens: cfg.exposeTokens,
 	})
 	if err != nil {
 		return fmt.Errorf("create http api: %w", err)
@@ -112,6 +125,37 @@ func loadConfig() (config, error) {
 	if environment == "production" && (!cookieSecure || !strings.HasPrefix(allowedOrigin, "https://")) {
 		return config{}, errors.New("production requires secure cookies and an HTTPS allowed origin")
 	}
+	mfaKeyValue := envOrDefault("APU_MFA_ENCRYPTION_KEY", localMFAEncryptionKey)
+	if environment == "production" && mfaKeyValue == localMFAEncryptionKey {
+		return config{}, errors.New("production requires APU_MFA_ENCRYPTION_KEY")
+	}
+	mfaKey, err := mfa.DecodeEncryptionKey(mfaKeyValue)
+	if err != nil {
+		return config{}, errors.New("APU_MFA_ENCRYPTION_KEY must be raw base64 for exactly 32 bytes")
+	}
+	exposeTokens, err := strconv.ParseBool(envOrDefault("APU_EXPOSE_DEVELOPMENT_TOKENS", "false"))
+	if err != nil || (environment == "production" && exposeTokens) {
+		return config{}, errors.New("APU_EXPOSE_DEVELOPMENT_TOKENS must be false in production")
+	}
+	resetBaseURL := envOrDefault("APU_PASSWORD_RESET_BASE_URL", allowedOrigin)
+	parsedResetURL, err := url.Parse(resetBaseURL)
+	if err != nil || parsedResetURL.Host == "" || (environment == "production" && parsedResetURL.Scheme != "https") {
+		return config{}, errors.New("APU_PASSWORD_RESET_BASE_URL must be an absolute HTTPS URL in production")
+	}
+	smtpAddress := strings.TrimSpace(os.Getenv("APU_SMTP_ADDRESS"))
+	var resetMailer httpapi.ResetMailer
+	if smtpAddress != "" {
+		resetMailer = mailer.SMTP{
+			Address:  smtpAddress,
+			Username: strings.TrimSpace(os.Getenv("APU_SMTP_USERNAME")),
+			Password: os.Getenv("APU_SMTP_PASSWORD"),
+			From:     strings.TrimSpace(os.Getenv("APU_SMTP_FROM")),
+			Timeout:  10 * time.Second,
+		}
+	}
+	if environment == "production" && (smtpAddress == "" || strings.TrimSpace(os.Getenv("APU_SMTP_FROM")) == "") {
+		return config{}, errors.New("production requires APU_SMTP_ADDRESS and APU_SMTP_FROM")
+	}
 
 	return config{
 		environment:   environment,
@@ -120,6 +164,10 @@ func loadConfig() (config, error) {
 		allowedOrigin: allowedOrigin,
 		cookieSecure:  cookieSecure,
 		sessionTTL:    sessionTTL,
+		mfaKey:        mfaKey,
+		resetBaseURL:  resetBaseURL,
+		resetMailer:   resetMailer,
+		exposeTokens:  exposeTokens,
 	}, nil
 }
 

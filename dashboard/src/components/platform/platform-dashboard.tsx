@@ -14,6 +14,7 @@ import {
   Users,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { FormEvent, useMemo, useState } from "react";
 import {
   APIError,
@@ -171,6 +172,7 @@ export function PlatformDashboard({ user, initialSnapshot }: { user: Authenticat
         <div className="rail-account">
           <span>{user.displayName}</span>
           <small>Administrador de plataforma</small>
+          <Link className="rail-security" href="/seguridad"><KeyRound aria-hidden="true" />Seguridad</Link>
           <button type="button" onClick={handleLogout} disabled={busy === "logout"}><LogOut aria-hidden="true" />{busy === "logout" ? "Cerrando…" : "Cerrar sesión"}</button>
         </div>
       </aside>

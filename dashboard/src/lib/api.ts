@@ -21,7 +21,9 @@ export type SessionResult = {
   redirect: "/platform" | "/admin" | "/familia" | "/acceso-pendiente";
 };
 
-export type LoginResult = SessionResult & { csrfToken: string };
+export type LoginSuccess = SessionResult & { csrfToken: string; recoveryCodes?: string[] };
+export type MFAChallengeResult = { mfaRequired: true; mode: "enroll" | "verify"; challenge: string };
+export type LoginResult = LoginSuccess | MFAChallengeResult;
 
 export type PlatformSummary = {
   tenantsTotal: number;
@@ -118,6 +120,30 @@ function mutation(method: "POST" | "PATCH", body?: unknown): RequestInit {
 
 export function login(email: string, password: string): Promise<LoginResult> {
   return request("/auth/login", { method: "POST", body: JSON.stringify({ email, password }) });
+}
+
+export function startMFAEnrollment(challenge: string): Promise<{ secret: string; provisioningUri: string }> {
+  return request("/auth/mfa/enroll", { method: "POST", body: JSON.stringify({ challenge }) });
+}
+
+export function confirmMFAEnrollment(challenge: string, code: string): Promise<LoginSuccess> {
+  return request("/auth/mfa/enroll/confirm", { method: "POST", body: JSON.stringify({ challenge, code }) });
+}
+
+export function verifyMFA(challenge: string, code: string): Promise<LoginSuccess> {
+  return request("/auth/mfa/verify", { method: "POST", body: JSON.stringify({ challenge, code }) });
+}
+
+export function requestPasswordReset(email: string): Promise<{ status: string; developmentResetToken?: string }> {
+  return request("/auth/password/reset/request", { method: "POST", body: JSON.stringify({ email }) });
+}
+
+export function confirmPasswordReset(token: string, newPassword: string): Promise<{ status: string }> {
+  return request("/auth/password/reset/confirm", { method: "POST", body: JSON.stringify({ token, newPassword }) });
+}
+
+export function changePassword(currentPassword: string, newPassword: string): Promise<void> {
+  return request("/auth/password/change", mutation("POST", { currentPassword, newPassword }));
 }
 
 export function activateInvitation(token: string, password: string): Promise<{ status: string }> {

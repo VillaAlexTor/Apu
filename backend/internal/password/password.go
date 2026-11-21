@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"unicode/utf8"
 
 	"golang.org/x/crypto/argon2"
 )
@@ -20,14 +21,26 @@ const (
 	saltLength     = 16
 )
 
-var ErrInvalidHash = errors.New("invalid password hash")
+var (
+	ErrInvalidHash    = errors.New("invalid password hash")
+	ErrPasswordLength = errors.New("password must contain between 15 and 1024 characters")
+	ErrCommonPassword = errors.New("password is too common")
+)
+
+var blockedPasswords = map[string]struct{}{
+	"123456789012345":  {},
+	"1234567890123456": {},
+	"contraseña123456": {},
+	"password1234567":  {},
+	"qwertyuiop12345":  {},
+	"administrador123": {},
+	"administradorapu": {},
+	"apuadministrador": {},
+}
 
 func Hash(value string) (string, error) {
-	if len(value) < 12 {
-		return "", errors.New("password must contain at least 12 characters")
-	}
-	if len(value) > 1024 {
-		return "", errors.New("password is too long")
+	if err := Validate(value); err != nil {
+		return "", err
 	}
 
 	salt := make([]byte, saltLength)
@@ -45,6 +58,17 @@ func Hash(value string) (string, error) {
 		base64.RawStdEncoding.EncodeToString(salt),
 		base64.RawStdEncoding.EncodeToString(digest),
 	), nil
+}
+
+func Validate(value string) error {
+	length := utf8.RuneCountInString(value)
+	if length < 15 || length > 1024 {
+		return ErrPasswordLength
+	}
+	if _, blocked := blockedPasswords[strings.ToLower(strings.TrimSpace(value))]; blocked {
+		return ErrCommonPassword
+	}
+	return nil
 }
 
 func Verify(value, encoded string) (bool, error) {

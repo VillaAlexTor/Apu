@@ -30,6 +30,13 @@ independientes. Nunca se reutilizan secretos entre entornos.
 | `APU_ALLOWED_ORIGIN` | API | sí | origen exacto autorizado para el dashboard |
 | `APU_COOKIE_SECURE` | API | sí | exige cookies HTTPS; obligatorio en producción |
 | `APU_SESSION_TTL` | API | sí | duración de la sesión humana (`12h` por defecto local) |
+| `APU_MFA_ENCRYPTION_KEY` | API | producción | clave base64 de 32 bytes para cifrar secretos TOTP |
+| `APU_PASSWORD_RESET_BASE_URL` | API | sí | origen absoluto del enlace de recuperación; HTTPS en producción |
+| `APU_EXPOSE_DEVELOPMENT_TOKENS` | API | solo local | permite mostrar el token de recuperación para pruebas locales |
+| `APU_SMTP_ADDRESS` | API | producción | servidor y puerto SMTP con STARTTLS |
+| `APU_SMTP_USERNAME` | API | según proveedor | usuario SMTP |
+| `APU_SMTP_PASSWORD` | API | según proveedor | contraseña SMTP; siempre desde gestor de secretos |
+| `APU_SMTP_FROM` | API | producción | remitente válido de recuperación |
 | `APU_FIELD_ENCRYPTION_KEY` | API | producción | clave de cifrado de campos |
 | `APU_FCM_CREDENTIALS` | API | producción | referencia al secreto FCM |
 | `NEXT_PUBLIC_API_BASE_URL` | dashboard | sí | URL pública de la API |

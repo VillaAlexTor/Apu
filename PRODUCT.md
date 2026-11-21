@@ -37,7 +37,7 @@ APU plantea el control parental como acompañamiento transparente: el menor cono
 
 ## Capabilities and Constraints
 
-- Autenticación con email y contraseña, sesiones opacas revocables y MFA pendiente antes de habilitar roles administrativos en producción.
+- Autenticación con email y contraseña, sesiones opacas revocables, recuperación segura y MFA TOTP obligatorio para roles administrativos.
 - Autorización y aislamiento aplicados en el backend por `tenant_id`, familia y rol; la interfaz nunca concede permisos por sí sola.
 - Registro, emparejamiento temporal por código o QR, gestión de dispositivos, ubicación, historial, geocercas y auditoría.
 - Los operadores no pueden consultar coordenadas ni historiales familiares sensibles por defecto.

@@ -31,7 +31,8 @@ redactados. Los códigos de error son estables y se documentan en OpenAPI.
 - Los usuarios humanos reciben una cookie de sesión opaca `HttpOnly`; el servidor
   guarda únicamente su hash.
 - Las operaciones que modifican la sesión requieren `X-CSRF-Token`.
-- La única ruta pública de identidad es el login. No existe registro público.
+- Login, activación, recuperación y verificación MFA son públicas pero requieren
+  credenciales o retos de un solo uso. No existe registro público.
 - Los dispositivos Android usarán credenciales propias ligadas al dispositivo;
   ese mecanismo todavía no está implementado.
 - El servidor responde `401` por credencial ausente/inválida y `403` por falta de
@@ -50,6 +51,12 @@ Los envíos de datos y operaciones que crean comandos aceptan
 | POST | `/auth/login` | pública | sesión |
 | GET | `/auth/me` | usuario | identidad, rol y destino |
 | POST | `/auth/logout` | usuario + CSRF | revoca la sesión |
+| POST | `/auth/password/reset/request` | pública | respuesta uniforme y envío de enlace |
+| POST | `/auth/password/reset/confirm` | token de un solo uso | cambia contraseña y revoca sesiones |
+| POST | `/auth/password/change` | usuario + CSRF | reautentica, cambia contraseña y revoca sesiones |
+| POST | `/auth/mfa/enroll` | reto después de contraseña | prepara TOTP |
+| POST | `/auth/mfa/enroll/confirm` | reto + TOTP | activa MFA y entrega códigos de recuperación |
+| POST | `/auth/mfa/verify` | reto + TOTP/recuperación | crea sesión con MFA verificado |
 | GET | `/subscription` | tenant owner/admin | estado y límites |
 | POST | `/billing/checkout` | tenant owner | inicia suscripción |
 | POST | `/billing/webhook` | proveedor verificado | actualiza pago |

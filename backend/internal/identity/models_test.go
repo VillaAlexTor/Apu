@@ -4,6 +4,7 @@ import "testing"
 
 func TestDestination(t *testing.T) {
 	platformRole := "platform_admin"
+	supportRole := "support_agent"
 	tests := []struct {
 		name        string
 		user        User
@@ -11,6 +12,7 @@ func TestDestination(t *testing.T) {
 		expected    string
 	}{
 		{name: "platform", user: User{PlatformRole: &platformRole}, expected: "/platform"},
+		{name: "support without dashboard", user: User{PlatformRole: &supportRole}, expected: "/acceso-pendiente"},
 		{name: "tenant admin", memberships: []Membership{{Role: "tenant_admin"}}, expected: "/admin"},
 		{name: "guardian", memberships: []Membership{{Role: "guardian"}}, expected: "/familia"},
 		{name: "pending", expected: "/acceso-pendiente"},

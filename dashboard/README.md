@@ -26,17 +26,23 @@ El build usa Webpack porque la versión actual de Turbopack presenta un fallo in
 
 El formulario envía las credenciales a `POST /api/v1/auth/login`, conserva la
 sesión mediante cookies seguras y muestra el destino que corresponde al rol.
-En desarrollo, `NEXT_PUBLIC_API_URL` puede apuntar a
+En desarrollo, `NEXT_PUBLIC_API_BASE_URL` puede apuntar a
 `http://localhost:8081/api/v1`.
 
 Las rutas privadas consultan `/auth/me` durante el render del servidor y
 redirigen al login o al panel autorizado. La sesión persiste en la cookie opaca
-del backend: los roles de plataforma reciben `/platform`, `tenant_owner` y
-`tenant_admin` reciben `/admin`, `guardian` recibe `/familia`, y una cuenta sin
-asignación recibe `/acceso-pendiente`. En este corte, la operación completa de
-`/platform` está autorizada únicamente para `platform_admin`.
+del backend: `platform_admin` recibe `/platform`, `tenant_owner` y
+`tenant_admin` reciben `/admin`, y `guardian` recibe `/familia`. Una cuenta sin
+un destino autorizado —incluido `support_agent` mientras no exista su panel
+limitado— recibe `/acceso-pendiente`. En este corte, la operación completa de
+`/platform` está autorizada únicamente para `platform_admin` con MFA verificado.
 
 `/platform` implementa organizaciones, invitaciones, usuarios, cambios de rol y
 estado, revocación de sesiones y auditoría. El cierre de sesión llama a
 `POST /auth/logout`, revoca la sesión actual y regresa al acceso compartido.
 `/activar` permite que una persona invitada establezca su contraseña.
+
+`/recuperar` y `/restablecer` implementan recuperación con respuesta uniforme;
+`/seguridad` permite cambiar la contraseña y revoca todas las sesiones. Después
+de validar la contraseña, `/mfa` obliga a `platform_admin`, `tenant_owner` y
+`tenant_admin` a registrar o verificar TOTP antes de crear la sesión.

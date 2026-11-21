@@ -39,6 +39,11 @@ export function LoginForm() {
     setFeedback(null);
     try {
       const result = await login(values.email, values.password);
+      if ("mfaRequired" in result) {
+        sessionStorage.setItem("apu_mfa_challenge", JSON.stringify({ challenge: result.challenge, mode: result.mode }));
+        router.replace("/mfa");
+        return;
+      }
       setFeedback({
         kind: "success",
         text: `Sesión iniciada para ${result.user.displayName}. Destino autorizado: ${destinationLabels[result.redirect] ?? "panel asignado"}.`,
@@ -51,10 +56,6 @@ export function LoginForm() {
         text: error instanceof APIError ? error.message : "No pudimos conectar con el servicio de acceso.",
       });
     }
-  }
-
-  function showRecoveryStatus() {
-    setFeedback({ kind: "info", text: "La recuperación de contraseña se habilitará junto con el servicio de correo del backend." });
   }
 
   return (
@@ -76,7 +77,7 @@ export function LoginForm() {
         {...register("password")}
       />
       <SubmitButton loading={isSubmitting}>Iniciar sesión</SubmitButton>
-      <button className="recovery-link" type="button" onClick={showRecoveryStatus} disabled={isSubmitting}>¿Olvidaste tu contraseña?</button>
+      <button className="recovery-link" type="button" onClick={() => router.push("/recuperar")} disabled={isSubmitting}>¿Olvidaste tu contraseña?</button>
       <div className="security-note">
         <ShieldCheck aria-hidden="true" />
         <p>Tu acceso se dirige de forma segura según tus permisos.</p>

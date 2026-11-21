@@ -138,9 +138,10 @@ El backend responde con la identidad y las capacidades efectivas. El frontend
 redirige a una ruta conveniente, pero cada endpoint vuelve a comprobar permisos.
 
 ```text
-platform_admin / support_agent → /platform
-tenant_owner / tenant_admin    → /admin
-guardian                       → /familia
+platform_admin              → /platform
+tenant_owner / tenant_admin → /admin
+guardian                    → /familia
+support_agent / sin rol     → /acceso-pendiente
 ```
 
 ### Dispositivos Android

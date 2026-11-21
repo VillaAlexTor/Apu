@@ -95,6 +95,9 @@
 .rail-account button { display: flex; align-items: center; gap: .5rem; margin-top: 1rem; padding: .35rem 0; border: 0; border-bottom: 1px solid rgba(250,245,233,.44); background: transparent; color: var(--paper-soft); cursor: pointer; }
 .rail-account button:hover { color: var(--survey-yellow); border-color: var(--survey-yellow); }
 .rail-account button svg { width: 1rem; }
+.rail-security { display: flex; min-height: 2.75rem; align-items: center; gap: .5rem; margin-top: .75rem; color: var(--paper-soft); font-size: .8rem; text-decoration: none; }
+.rail-security:hover { color: var(--survey-yellow); }
+.rail-security svg { width: 1rem; }
 
 .platform-main { position: relative; min-width: 0; padding: 2rem clamp(1.5rem,3.4vw,3.6rem) 4rem; isolation: isolate; }
 .platform-main::before { position: fixed; inset: 0 0 0 15.5rem; z-index: -1; background: url("/assets/apu-topographic-field.webp") center/cover; opacity: .06; content: ""; pointer-events: none; }
@@ -223,8 +226,9 @@ tbody tr:hover { background: rgba(225,184,75,.1); }
   .platform-rail nav button { min-height: 2.55rem; padding: .55rem .7rem; }
   .platform-rail nav button svg { display: none; }
   .platform-rail nav button.is-active::after { display: none; }
-  .rail-account { margin: 0 0 0 auto; padding: 0; border: 0; }
+  .rail-account { display: flex; align-items: center; gap: .2rem; margin: 0 0 0 auto; padding: 0; border: 0; }
   .rail-account span,.rail-account small { display: none; }
+	.rail-security { width: 2.75rem; height: 2.75rem; justify-content: center; margin: 0; font-size: 0; }
 	.rail-account button { margin: 0; border: 0; font-size: 0; }
 	.rail-account button svg { width: 1.15rem; height: 1.15rem; }
   .platform-main { padding: 1.5rem 1.1rem 3rem; }
